@@ -58,9 +58,11 @@ function SignUp() {
       <LeftSide>
         <LeftText>
           <Title>
-            Linkr<br />
+            Linkr
+            <br />
           </Title>
-          compartilhe e descubra<br />
+          compartilhe e descubra
+          <br />
           os melhores links da internet!
         </LeftText>
       </LeftSide>
@@ -103,9 +105,7 @@ function SignUp() {
             {loading ? "Cadastrando..." : "Cadastrar"}
           </Button>
 
-          <SignInLink to="/">
-            Voltar para login!
-          </SignInLink>
+          <SignInLink to="/">Voltar para login!</SignInLink>
         </Form>
       </RightSide>
     </Container>
@@ -139,7 +139,7 @@ const LeftSide = styled.div`
 `;
 
 const Title = styled.h1`
-  font-family: 'Passion One';
+  font-family: "Passion One";
   font-size: 106px;
   font-weight: 700;
   margin-bottom: 20px;
@@ -150,8 +150,8 @@ const Title = styled.h1`
   }
 `;
 
-const LeftText = styled.h1`
-  font-family: 'Oswald';
+const LeftText = styled.div`
+  font-family: "Oswald";
   font-size: 43px;
   font-weight: 700;
   line-height: 1.2;
@@ -185,7 +185,7 @@ const Form = styled.form`
 
 const Input = styled.input`
   padding: 12px;
-  font-family: 'Oswald';
+  font-family: "Oswald";
   font-weight: 700;
   font-size: 27px;
   border-radius: 6px;
@@ -198,7 +198,7 @@ const Input = styled.input`
 
 const Button = styled.button<{ disabled: boolean }>`
   padding: 12px;
-  font-family: 'Oswald';
+  font-family: "Oswald";
   font-weight: 700;
   font-size: 27px;
   background-color: ${({ disabled }) => (disabled ? "#aaa" : "#1877F2")};
@@ -214,17 +214,16 @@ const Button = styled.button<{ disabled: boolean }>`
 
 const SignInLink = styled(Link)`
   margin-top: 12px;
-  font-family: 'Lato';
+  font-family: "Lato";
   font-weight: 400;
   text-align: center;
   text-decoration: underline;
-  color: #FFFFFF;
+  color: #ffffff;
   font-size: 20px;
 
   @media (max-width: 768px) {
     font-size: 18px;
   }
 `;
-
 
 export default SignUp;

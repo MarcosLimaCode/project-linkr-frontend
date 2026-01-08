@@ -24,7 +24,7 @@ function SignIn() {
     try {
       await axios.post(`${backendUrl}/`, {
         email,
-        password
+        password,
       });
 
       navigate("/feed");
@@ -40,10 +40,12 @@ function SignIn() {
     <Container>
       <LeftSide>
         <LeftText>
-            <Title>
-            Linkr<br />
-            </Title>
-          compartilhe e descubra<br />
+          <Title>
+            Linkr
+            <br />
+          </Title>
+          compartilhe e descubra
+          <br />
           os melhores links da internet!
         </LeftText>
       </LeftSide>
@@ -68,9 +70,7 @@ function SignIn() {
             {loading ? "Entrando..." : "Entrar"}
           </Button>
 
-          <SignUpLink to="/sign-up">
-            Primeira vez? crie uma conta!
-          </SignUpLink>
+          <SignUpLink to="/sign-up">Primeira vez? crie uma conta!</SignUpLink>
         </Form>
       </RightSide>
     </Container>
@@ -96,7 +96,7 @@ const LeftSide = styled.div`
 
   @media (max-width: 768px) {
     flex: none;
-    height: 50vh;  
+    height: 50vh;
     justify-content: center;
     padding: 20px;
     text-align: center;
@@ -104,7 +104,7 @@ const LeftSide = styled.div`
 `;
 
 const Title = styled.h1`
-  font-family: 'Passion One';
+  font-family: "Passion One";
   font-size: 106px;
   font-weight: 700;
   margin-bottom: 20px;
@@ -115,8 +115,8 @@ const Title = styled.h1`
   }
 `;
 
-const LeftText = styled.h1`
-  font-family: 'Oswald';
+const LeftText = styled.div`
+  font-family: "Oswald";
   font-size: 43px;
   font-weight: 700;
   line-height: 1.2;
@@ -135,7 +135,7 @@ const RightSide = styled.div`
 
   @media (max-width: 768px) {
     flex: none;
-    height: 50vh;  
+    height: 50vh;
     padding: 20px;
   }
 `;
@@ -150,7 +150,7 @@ const Form = styled.form`
 
 const Input = styled.input`
   padding: 12px;
-  font-family: 'Oswald';
+  font-family: "Oswald";
   font-weight: 700;
   font-size: 27px;
   border-radius: 6px;
@@ -163,7 +163,7 @@ const Input = styled.input`
 
 const Button = styled.button<{ disabled: boolean }>`
   padding: 12px;
-  font-family: 'Oswald';
+  font-family: "Oswald";
   font-weight: 700;
   font-size: 27px;
   background-color: ${({ disabled }) => (disabled ? "#aaa" : "#1877F2")};
@@ -179,17 +179,16 @@ const Button = styled.button<{ disabled: boolean }>`
 
 const SignUpLink = styled(Link)`
   margin-top: 12px;
-  font-family: 'Lato';
+  font-family: "Lato";
   font-weight: 400;
   text-align: center;
   text-decoration: underline;
-  color: #FFFFFF;
+  color: #ffffff;
   font-size: 20px;
 
   @media (max-width: 768px) {
     font-size: 18px;
   }
 `;
-
 
 export default SignIn;
