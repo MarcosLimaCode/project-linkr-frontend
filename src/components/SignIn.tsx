@@ -1,7 +1,8 @@
 import axios from "axios";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import AuthContext from "../contexts/AuthContext";
 
 function SignIn() {
   const navigate = useNavigate();
@@ -10,30 +11,33 @@ function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const { setToken } = useContext(AuthContext);
 
   async function handleLogin(e: React.FormEvent) {
+    setLoading(true);
     e.preventDefault();
 
     if (!email || !password) {
       alert("Preencha todos os campos!");
+      setLoading(false);
       return;
     }
 
-    setLoading(true);
+    const body = { email, password };
 
-    try {
-      await axios.post(`${backendUrl}/`, {
-        email,
-        password,
+    axios
+      .post(backendUrl, body)
+      .then((res) => {
+        setToken(res.data.token);
+        localStorage.setItem("token", res.data);
+        setLoading(false);
+        navigate("/feed");
+      })
+      .catch((error: any) => {
+        alert("Usuário e/ou senha inválidos!");
+        console.log(error);
+        setLoading(false);
       });
-
-      navigate("/feed");
-    } catch (error: any) {
-      alert("Email ou senha inválidos");
-      console.log(error.message);
-    } finally {
-      setLoading(false);
-    }
   }
 
   return (
