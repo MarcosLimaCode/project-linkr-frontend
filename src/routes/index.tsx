@@ -3,6 +3,7 @@ import SignUp from "../components/SignUp";
 import SignIn from "../components/SignIn";
 import { useState } from "react";
 import AuthContext from "../contexts/AuthContext.tsx";
+import Feed from "../components/Feed.tsx";
 
 export default function AppRoutes() {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -13,6 +14,7 @@ export default function AppRoutes() {
         <Routes>
           <Route path="/" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/feed" element={<Feed />} />
         </Routes>
       </BrowserRouter>
     </AuthContext.Provider>
