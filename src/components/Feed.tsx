@@ -3,93 +3,113 @@ import styled from "styled-components";
 
 function Feed() {
   const [menuOpen, setMenuOpen] = useState(false);
-
   const [link, setLink] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
 
   const isDisabled = !link || !description || loading;
 
-  function toggleMenu() {
-    setMenuOpen((prev) => !prev);
-  }
-
-  function handleLogout() {
-    alert("Logout");
-  }
-
   return (
     <Container>
       <Top>
         <Title>Linkr</Title>
 
-        <MenuContainer onClick={toggleMenu}>
+        <MenuContainer onClick={() => setMenuOpen(!menuOpen)}>
           <Avatar
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHgGhz9LGW0TnWtcPfh7Gc9RBDGu5Z8cazkg&s"
-            alt="Foto do usuário"
+            style={{
+              backgroundImage:
+                "url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHgGhz9LGW0TnWtcPfh7Gc9RBDGu5Z8cazkg&s)",
+            }}
           />
 
-          <MenuButton >
-            ☰
-          </MenuButton>
-          
+          <MenuButton>☰</MenuButton>
+
           {menuOpen && (
             <Dropdown>
               <DropdownItem>Meu perfil</DropdownItem>
-              <DropdownItem onClick={handleLogout}>
-                Sair
-              </DropdownItem>
+              <DropdownItem>Sair</DropdownItem>
             </Dropdown>
           )}
         </MenuContainer>
       </Top>
-        <Body>
-        <FeedContainer>
+
+      <Body>
+        <ContentWrapper>
+          <FeedContainer>
             <FeedTitle>Feed</FeedTitle>
 
             <NewPostBox>
-            <AvatarPost
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHgGhz9LGW0TnWtcPfh7Gc9RBDGu5Z8cazkg&s"
-                alt="AvatarPost"
-            />
+              <AvatarPost
+                style={{
+                  backgroundImage:
+                    "url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHgGhz9LGW0TnWtcPfh7Gc9RBDGu5Z8cazkg&s)",
+                }}
+              />
 
-            <PostContent>
+              <PostContent>
                 <PromptText>
-                O que você tem pra compartilhar hoje?
+                  O que você tem pra compartilhar hoje?
                 </PromptText>
 
-                <LinkInput
-                type="text"
-                placeholder="http://..."
+                <FakeInput
+                  contentEditable
+                  onInput={(e) =>
+                    setLink(e.currentTarget.textContent || "")
+                  }
+                  data-placeholder="http://..."
                 />
 
-                <DescriptionInput
-                type="text"
-                placeholder="Descrição"
+                <FakeInput
+                  contentEditable
+                  onInput={(e) =>
+                    setDescription(e.currentTarget.textContent || "")
+                  }
+                  data-placeholder="Descrição"
                 />
 
                 <ButtonWrapper>
-                    <ShareButton disabled={isDisabled}>
+                  <ShareButton disabled={isDisabled}>
                     Publicar
-                    </ShareButton>
+                  </ShareButton>
                 </ButtonWrapper>
-            </PostContent>
+              </PostContent>
             </NewPostBox>
-        </FeedContainer>
-        </Body>
+          </FeedContainer>
+
+          <SuggestionsContainer>
+            <SuggestionsTitle>Sugestões para seguir</SuggestionsTitle>
+            <Divider />
+
+            {["alice_dev", "bruno.code", "carla.js", "diego.react", "fernanda_ui"].map(
+              (name) => (
+                <SuggestionItem key={name}>
+                  <SuggestionAvatar />
+                  <SuggestionName>{name}</SuggestionName>
+                </SuggestionItem>
+              )
+            )}
+          </SuggestionsContainer>
+        </ContentWrapper>
+      </Body>
     </Container>
   );
 }
+
 export default Feed;
 
+
 const Container = styled.div`
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
 `;
 
-const Top = styled.header`
-  width: 100%;
+const Top = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+
   height: 70px;
   background-color: #151515;
 
@@ -100,9 +120,6 @@ const Top = styled.header`
   padding: 0 20px;
   box-sizing: border-box;
 
-  position: fixed;
-  top: 0;
-  left: 0;
   z-index: 10;
 
   @media (max-width: 768px) {
@@ -111,209 +128,204 @@ const Top = styled.header`
   }
 `;
 
-const Title = styled.h1`
-  font-family: 'Passion One';
-  font-size: 49px;
-  font-weight: 700;
-  color: #ffffff;
 
-    @media (max-width: 768px) {
-    font-size: 32px;
-  }
+const Title = styled.div`
+  font-family: "Passion One";
+  font-size: 49px;
+  color: #fff;
 `;
 
 const MenuContainer = styled.div`
-  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
-
+  background: #333;
   padding: 5px 8px;
-  background-color: #333333;
   border-radius: 10px;
-
-  @media (max-width: 768px) {
-  border-radius: 50px;
-`;
-
-const MenuButton = styled.button`
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: 28px;
-  line-height: 1;
-  color: #ffffff;
   cursor: pointer;
-    @media (max-width: 768px) {
-    display: none;
-  }
+  position: relative;
 `;
 
-const Avatar = styled.img`
+const MenuButton = styled.div`
+  font-size: 28px;
+  color: #fff;
+`;
+
+const Avatar = styled.div`
   width: 53px;
   height: 53px;
   border-radius: 10%;
-  cursor: pointer;
-
-  @media (max-width: 768px) {
-    width: 45px;
-    height: 45px;
-    border-radius: 50px;
-    padding: 2px;
-    gap: 2px;
-  }
+  background-size: cover;
+  background-position: center;
 `;
 
 const Dropdown = styled.div`
   position: absolute;
   top: 65px;
   right: 0;
-  width: 106px;
-
-  background-color: #333333;
+  background: #333;
+  padding: 4px;
   border-radius: 8px;
-
   display: flex;
   flex-direction: column;
-  gap: 3px;
-
-  padding: 3px;
-
-    @media (max-width: 768px) {
-    top: auto;
-    bottom: 65px;
-  }
+  gap: 4px;
 `;
 
 const DropdownItem = styled.div`
-  padding: 10px 0;
-  font-family: 'Lato';
-  font-size: 16px;
-  color: #ffffff;
-  background-color: #151515;
-  border-radius: 4px;
+  background: #151515;
+  color: #fff;
   text-align: center;
+  padding: 10px;
+  border-radius: 4px;
   cursor: pointer;
 
   &:hover {
-    background-color: #555555;
+    background: #555;
   }
 `;
 
 const Body = styled.div`
   flex: 1;
-  background-color: #333333;
+  background: #333;
+  display: flex;
+  justify-content: center;
+`;
+
+const ContentWrapper = styled.div`
+  display: flex;
+  gap: 24px;
+  width: 100%;
+  max-width: 940px;
+  padding-top: 100px;
 `;
 
 const FeedContainer = styled.div`
-  width: 611px;
-  margin: 100px auto 0 auto;
-
-  @media (max-width: 768px) {
-    width: 100%;
-    padding: 0 16px;
-    margin-top: 40px;
-  }
+  width: 615px;
 `;
 
-const FeedTitle = styled.h1`
-  font-family: 'Oswald';
+const FeedTitle = styled.div`
+  font-family: "Passion One";
   font-size: 43px;
-  font-weight: 700;
-  color: #ffffff;
+  color: #fff;
   margin-bottom: 20px;
 `;
 
 const NewPostBox = styled.div`
-  width: 611px;
-  background-color: #ffffff;
+  background: #fff;
   border-radius: 16px;
+  padding: 18px;
   display: flex;
-  padding: 18px; /* 🔥 isso resolve */
-  box-sizing: border-box;
 `;
 
-const AvatarPost = styled.img`
+const AvatarPost = styled.div`
   width: 50px;
   height: 50px;
   border-radius: 26.5px;
-  object-fit: cover;
+  background-size: cover;
+  background-position: center;
+  margin-right: 10px;
 `;
 
 const PostContent = styled.div`
   flex: 1;
-  position: relative;
-  padding-bottom: 45px;
 `;
 
-const PromptText = styled.p`
-  font-family: 'Lato';
-  font-weight: 300;
+const PromptText = styled.div`
+  font-family: "Lato";
   font-size: 20px;
+  font-weight: 300;
   color: #707070;
   margin-bottom: 12px;
 `;
 
-const LinkInput = styled.input`
-  width: 506px;
-  height: 30px;
+const FakeInput = styled.div`
+  background: #efefef;
+  border-radius: 5px;
+  padding: 6px 10px;
   margin-bottom: 8px;
-  padding: 6px 10px;
-  border-radius: 5px;
-  border: none;
-  background-color: #efefef;
+  min-height: 30px;
+  outline: none;
 
-  font-family: 'Lato';
-  font-size: 15px;
-
-  @media (max-width: 768px) {
-    width: 100%;
+  &:empty:before {
+    content: attr(data-placeholder);
+    color: #999;
   }
 `;
-
-const DescriptionInput = styled.input`
-  width: 505px;
-  height: 30px;
-  padding: 6px 10px;
-  border-radius: 5px;
-  border: none;
-  background-color: #efefef;
-
-  font-family: 'Lato';
-  font-size: 15px;
-
-  @media (max-width: 768px) {
-    width: 100%;
-  }
-`;
-
 
 const ButtonWrapper = styled.div`
   display: flex;
   justify-content: flex-end;
-  margin-top: 8px;
 `;
 
-const ShareButton = styled.button<{ disabled: boolean }>`
+const ShareButton = styled.div<{ disabled: boolean }>`
   width: 113px;
   height: 31px;
-
-  background-color: #1877f2;
-  color: #ffffff;
-
-  font-family: 'Lato';
-  font-size: 14px;
-  font-weight: 700;
-
-  border: none;
+  background: #1877f2;
+  color: #fff;
   border-radius: 5px;
-
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   opacity: ${({ disabled }) => (disabled ? 0.3 : 1)};
-  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
+  cursor: ${({ disabled }) =>
+    disabled ? "not-allowed" : "pointer"};
+`;
+
+const SuggestionsContainer = styled.div`
+  width: 328px;
+  height: 377px;
+  background: #171717;
+  border-radius: 16px;
+  padding: 16px;
+  position: sticky;
+  top: 165px;
+  display: none;
+
+  @media (min-width: 1024px) {
+    display: flex;
+    flex-direction: column;
+  }
+`;
+
+const SuggestionsTitle = styled.div`
+  font-family: "Oswald";
+  color: #fff;
+  font-size: 27px;
+  font-weight: 700;
+  align-self: center;
+`;
+
+const Divider = styled.div`
+  height: 1px;
+  background: #484848;
+  margin: 12px 0;
+`;
+
+const SuggestionItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  background-color: #333333;
+  border-radius: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  gap: 8px;
+`;
+
+const SuggestionAvatar = styled.div`
+  width: 39px;
+  height: 39px;
+  border-radius: 304px;
+  background: #555;
+`;
+
+const SuggestionName = styled.div`
+  font-family: "Lato";
+  font-size: 19px;
+  color: #fff;
+  font-weight: 700;
 `;
