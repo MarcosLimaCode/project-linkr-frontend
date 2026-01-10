@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 function Feed() {
@@ -26,8 +27,8 @@ function Feed() {
 
           {menuOpen && (
             <Dropdown>
-              <DropdownItem>Meu perfil</DropdownItem>
-              <DropdownItem>Sair</DropdownItem>
+              <DropdownItem to="/profile">Meu perfil</DropdownItem>
+              <DropdownItem to="/">Sair</DropdownItem>
             </Dropdown>
           )}
         </MenuContainer>
@@ -47,15 +48,11 @@ function Feed() {
               />
 
               <PostContent>
-                <PromptText>
-                  O que você tem pra compartilhar hoje?
-                </PromptText>
+                <PromptText>O que você tem pra compartilhar hoje?</PromptText>
 
                 <FakeInput
                   contentEditable
-                  onInput={(e) =>
-                    setLink(e.currentTarget.textContent || "")
-                  }
+                  onInput={(e) => setLink(e.currentTarget.textContent || "")}
                   data-placeholder="http://..."
                 />
 
@@ -68,9 +65,7 @@ function Feed() {
                 />
 
                 <ButtonWrapper>
-                  <ShareButton disabled={isDisabled}>
-                    Publicar
-                  </ShareButton>
+                  <ShareButton disabled={isDisabled}>Publicar</ShareButton>
                 </ButtonWrapper>
               </PostContent>
             </NewPostBox>
@@ -80,14 +75,18 @@ function Feed() {
             <SuggestionsTitle>Sugestões para seguir</SuggestionsTitle>
             <Divider />
 
-            {["alice_dev", "bruno.code", "carla.js", "diego.react", "fernanda_ui"].map(
-              (name) => (
-                <SuggestionItem key={name}>
-                  <SuggestionAvatar />
-                  <SuggestionName>{name}</SuggestionName>
-                </SuggestionItem>
-              )
-            )}
+            {[
+              "alice_dev",
+              "bruno.code",
+              "carla.js",
+              "diego.react",
+              "fernanda_ui",
+            ].map((name) => (
+              <SuggestionItem key={name}>
+                <SuggestionAvatar />
+                <SuggestionName>{name}</SuggestionName>
+              </SuggestionItem>
+            ))}
           </SuggestionsContainer>
         </ContentWrapper>
       </Body>
@@ -96,7 +95,6 @@ function Feed() {
 }
 
 export default Feed;
-
 
 const Container = styled.div`
   min-height: 100vh;
@@ -128,7 +126,6 @@ const Top = styled.div`
   }
 `;
 
-
 const Title = styled.div`
   font-family: "Passion One";
   font-size: 49px;
@@ -136,6 +133,7 @@ const Title = styled.div`
 `;
 
 const MenuContainer = styled.div`
+  font-family: "Lato";
   display: flex;
   align-items: center;
   gap: 10px;
@@ -171,10 +169,11 @@ const Dropdown = styled.div`
   gap: 4px;
 `;
 
-const DropdownItem = styled.div`
+const DropdownItem = styled(Link)`
   background: #151515;
   color: #fff;
   text-align: center;
+  text-decoration: none;
   padding: 10px;
   border-radius: 4px;
   cursor: pointer;
@@ -227,6 +226,8 @@ const AvatarPost = styled.div`
 `;
 
 const PostContent = styled.div`
+  font-family: "Lato";
+  font-weight: 300;
   flex: 1;
 `;
 
@@ -268,8 +269,7 @@ const ShareButton = styled.div<{ disabled: boolean }>`
   align-items: center;
   justify-content: center;
   opacity: ${({ disabled }) => (disabled ? 0.3 : 1)};
-  cursor: ${({ disabled }) =>
-    disabled ? "not-allowed" : "pointer"};
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
 `;
 
 const SuggestionsContainer = styled.div`
@@ -327,5 +327,5 @@ const SuggestionName = styled.div`
   font-family: "Lato";
   font-size: 19px;
   color: #fff;
-  font-weight: 700;
+  font-weight: 400;
 `;
