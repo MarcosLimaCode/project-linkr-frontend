@@ -1,14 +1,41 @@
+import axios from "axios";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 function Feed() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [link, setLink] = useState("");
   const [description, setDescription] = useState("");
-  const [loading, setLoading] = useState(false);
+  const backendUrl = import.meta.env.VITE_API_URL;
+  const token = localStorage.getItem("token");
+  const navigate = useNavigate();
 
-  const isDisabled = !link || !description || loading;
+  const isDisabled = !link;
+
+  async function handlePost(e: React.FormEvent) {
+    e.preventDefault();
+
+    try {
+      await axios.post(
+        `${backendUrl}/feed`,
+        {
+          link,
+          description,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      navigate(0);
+    } catch {
+      alert("Erro inesperado. Tente novamente mais tarde.");
+    } finally {
+    }
+  }
 
   return (
     <Container>
@@ -47,7 +74,7 @@ function Feed() {
                 }}
               />
 
-              <PostContent>
+              <PostContent onSubmit={handlePost}>
                 <PromptText>O que você tem pra compartilhar hoje?</PromptText>
 
                 <FakeInput
@@ -65,7 +92,9 @@ function Feed() {
                 />
 
                 <ButtonWrapper>
-                  <ShareButton disabled={isDisabled}>Publicar</ShareButton>
+                  <ShareButton type="submit" disabled={isDisabled}>
+                    Publicar
+                  </ShareButton>
                 </ButtonWrapper>
               </PostContent>
             </NewPostBox>
@@ -225,7 +254,7 @@ const AvatarPost = styled.div`
   margin-right: 10px;
 `;
 
-const PostContent = styled.div`
+const PostContent = styled.form`
   font-family: "Lato";
   font-weight: 300;
   flex: 1;
@@ -258,12 +287,13 @@ const ButtonWrapper = styled.div`
   justify-content: flex-end;
 `;
 
-const ShareButton = styled.div<{ disabled: boolean }>`
+const ShareButton = styled.button<{ disabled: boolean }>`
   width: 113px;
   height: 31px;
   background: #1877f2;
   color: #fff;
   border-radius: 5px;
+  border: none;
   font-weight: 700;
   display: flex;
   align-items: center;
