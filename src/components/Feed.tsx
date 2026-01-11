@@ -14,6 +14,7 @@ function Feed() {
 
   const backendUrl = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
+  const image = localStorage.getItem("image");
   const navigate = useNavigate();
 
   const isDisabled = !link;
@@ -74,8 +75,7 @@ function Feed() {
         <MenuContainer onClick={() => setMenuOpen(!menuOpen)}>
           <Avatar
             style={{
-              backgroundImage:
-                "url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHgGhz9LGW0TnWtcPfh7Gc9RBDGu5Z8cazkg&s)",
+              backgroundImage: `url(${image})`,
             }}
           />
           <MenuButton>☰</MenuButton>
@@ -97,8 +97,7 @@ function Feed() {
             <NewPostBox>
               <AvatarPost
                 style={{
-                  backgroundImage:
-                    "url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHgGhz9LGW0TnWtcPfh7Gc9RBDGu5Z8cazkg&s)",
+                  backgroundImage: `url(${image})`,
                 }}
               />
 
