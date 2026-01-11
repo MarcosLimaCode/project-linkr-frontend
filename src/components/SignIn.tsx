@@ -29,7 +29,7 @@ function SignIn() {
       .post(backendUrl, body)
       .then((res) => {
         setToken(res.data.token);
-        localStorage.setItem("token", res.data);
+        localStorage.setItem("token", res.data.token);
         setLoading(false);
         navigate("/feed");
       })

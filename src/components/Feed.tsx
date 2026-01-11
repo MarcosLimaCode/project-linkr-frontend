@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import axios from "axios";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 function Feed() {
@@ -6,37 +8,35 @@ function Feed() {
 
   const [link, setLink] = useState("");
   const [description, setDescription] = useState("");
-  const [loadingPost, setLoadingPost] = useState(false);
+  const backendUrl = import.meta.env.VITE_API_URL;
+  const token = localStorage.getItem("token");
+  const navigate = useNavigate();
 
-  const [posts, setPosts] = useState<any[]>([]);
-  const [loadingFeed, setLoadingFeed] = useState(true);
-  const [feedError, setFeedError] = useState(false);
+  const isDisabled = !link;
 
-  const isDisabled = !link || !description || loadingPost;
+  async function handlePost(e: React.FormEvent) {
+    e.preventDefault();
 
-  useEffect(() => {
-    setLoadingFeed(true);
-
-    setTimeout(() => {
-      try {
-        const mockPosts = Array.from({ length: 5 }).map((_, index) => ({
-          id: index,
-          user: {
-            name: `user_${index + 1}`,
-            avatar: "https://via.placeholder.com/50",
+    try {
+      await axios.post(
+        `${backendUrl}/feed`,
+        {
+          link,
+          description,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-          description: "Esse é um post de exemplo.",
-          link: "https://www.google.com",
-        }));
+        }
+      );
 
-        setPosts(mockPosts.slice(0, 20));
-      } catch {
-        setFeedError(true);
-      } finally {
-        setLoadingFeed(false);
-      }
-    }, 1500);
-  }, []);
+      navigate(0);
+    } catch {
+      alert("Erro inesperado. Tente novamente mais tarde.");
+    } finally {
+    }
+  }
 
   return (
     <Container>
@@ -54,8 +54,8 @@ function Feed() {
 
           {menuOpen && (
             <Dropdown>
-              <DropdownItem>Meu perfil</DropdownItem>
-              <DropdownItem>Sair</DropdownItem>
+              <DropdownItem to="/profile">Meu perfil</DropdownItem>
+              <DropdownItem to="/">Sair</DropdownItem>
             </Dropdown>
           )}
         </MenuContainer>
@@ -74,16 +74,12 @@ function Feed() {
                 }}
               />
 
-              <PostContent>
-                <PromptText>
-                  O que você tem pra compartilhar hoje?
-                </PromptText>
+              <PostContent onSubmit={handlePost}>
+                <PromptText>O que você tem pra compartilhar hoje?</PromptText>
 
                 <FakeInput
                   contentEditable
-                  onInput={(e) =>
-                    setLink(e.currentTarget.textContent || "")
-                  }
+                  onInput={(e) => setLink(e.currentTarget.textContent || "")}
                   data-placeholder="http://..."
                 />
 
@@ -96,7 +92,7 @@ function Feed() {
                 />
 
                 <ButtonWrapper>
-                  <ShareButton disabled={isDisabled}>
+                  <ShareButton type="submit" disabled={isDisabled}>
                     Publicar
                   </ShareButton>
                 </ButtonWrapper>
@@ -147,14 +143,18 @@ function Feed() {
             <SuggestionsTitle>Sugestões para seguir</SuggestionsTitle>
             <Divider />
 
-            {["alice_dev", "bruno.code", "carla.js", "diego.react", "fernanda_ui"].map(
-              (name) => (
-                <SuggestionItem key={name}>
-                  <SuggestionAvatar />
-                  <SuggestionName>{name}</SuggestionName>
-                </SuggestionItem>
-              )
-            )}
+            {[
+              "alice_dev",
+              "bruno.code",
+              "carla.js",
+              "diego.react",
+              "fernanda_ui",
+            ].map((name) => (
+              <SuggestionItem key={name}>
+                <SuggestionAvatar />
+                <SuggestionName>{name}</SuggestionName>
+              </SuggestionItem>
+            ))}
           </SuggestionsContainer>
         </ContentWrapper>
       </Body>
@@ -191,6 +191,7 @@ const Title = styled.div`
 `;
 
 const MenuContainer = styled.div`
+  font-family: "Lato";
   display: flex;
   gap: 10px;
   align-items: center;
@@ -225,9 +226,11 @@ const Dropdown = styled.div`
   flex-direction: column;
 `;
 
-const DropdownItem = styled.div`
+const DropdownItem = styled(Link)`
   background: #151515;
   color: #fff;
+  text-align: center;
+  text-decoration: none;
   padding: 10px;
   border-radius: 4px;
   text-align: center;
@@ -289,33 +292,9 @@ const AvatarPost = styled.div`
   margin-right: 10px;
 `;
 
-const AvatarNewPost = styled.div`
-  width: 50px;
-  height: 50px;
-  border-radius: 26.5px;
-  background-size: cover;
-  background-position: center;
-  border: 5px solid #333333;
-`;
-
-const UserPost = styled.div`
-  padding: 0 16px;
-
-  height: 39px;
-  display: flex;
-  align-items: center;
-
+const PostContent = styled.form`
   font-family: "Lato";
-  font-size: 19px;
-  font-weight: 400;
-  color: #ffffff;
-
-  background-color: #333333;
-  border-radius: 0 15px 15px 0;
-  white-space: nowrap;
-`;
-
-const PostContent = styled.div`
+  font-weight: 300;
   flex: 1;
 `;
 
@@ -386,19 +365,19 @@ const ButtonWrapper = styled.div`
   justify-content: flex-end;
 `;
 
-const ShareButton = styled.div<{ disabled: boolean }>`
+const ShareButton = styled.button<{ disabled: boolean }>`
   width: 113px;
   height: 31px;
   background: #1877f2;
   color: #fff;
   border-radius: 5px;
+  border: none;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: ${({ disabled }) => (disabled ? 0.3 : 1)};
-  cursor: ${({ disabled }) =>
-    disabled ? "not-allowed" : "pointer"};
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
 `;
 
 const SuggestionsContainer = styled.div`
@@ -457,7 +436,7 @@ const SuggestionName = styled.div`
   font-family: "Lato";
   font-size: 19px;
   color: #fff;
-  font-weight: 700;
+  font-weight: 400;
 `;
 
 const StatusText = styled.div`
