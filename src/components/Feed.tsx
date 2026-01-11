@@ -5,6 +5,7 @@ import styled from "styled-components";
 
 function Feed() {
   const [menuOpen, setMenuOpen] = useState(false);
+
   const [link, setLink] = useState("");
   const [description, setDescription] = useState("");
   const backendUrl = import.meta.env.VITE_API_URL;
@@ -49,7 +50,6 @@ function Feed() {
                 "url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHgGhz9LGW0TnWtcPfh7Gc9RBDGu5Z8cazkg&s)",
             }}
           />
-
           <MenuButton>☰</MenuButton>
 
           {menuOpen && (
@@ -98,6 +98,45 @@ function Feed() {
                 </ButtonWrapper>
               </PostContent>
             </NewPostBox>
+
+            {loadingFeed && <StatusText>Carregando posts...</StatusText>}
+
+            {feedError && (
+              <StatusText>
+                Um erro aconteceu. Atualize a página ou tente novamente em alguns
+                minutos.
+              </StatusText>
+            )}
+
+            {!loadingFeed && posts.length === 0 && (
+              <StatusText>Nenhuma postagem no momento...</StatusText>
+            )}
+
+            {posts.map((post) => (
+              <AllPostBox key={post.id}>
+                <AvatarNewPost
+                  style={{ backgroundImage: `url(${post.user.avatar})` }}
+                />
+
+                <PostContent>
+                  <PostHeader>
+                    <UserPost>{post.user.name}</UserPost>
+                  </PostHeader>
+
+                  <PostBody>
+                    <PostDescription>{post.description}</PostDescription>
+
+                    <PostURL
+                      onClick={() =>
+                        window.open(post.link, "_blank")
+                      }
+                    >
+                      {post.link}
+                    </PostURL>
+                  </PostBody>
+                </PostContent>
+              </AllPostBox>
+            ))}
           </FeedContainer>
 
           <SuggestionsContainer>
@@ -136,23 +175,13 @@ const Top = styled.div`
   top: 0;
   left: 0;
   right: 0;
-
   height: 70px;
-  background-color: #151515;
-
+  background: #151515;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-
+  align-items: center;
   padding: 0 20px;
-  box-sizing: border-box;
-
   z-index: 10;
-
-  @media (max-width: 768px) {
-    top: auto;
-    bottom: 0;
-  }
 `;
 
 const Title = styled.div`
@@ -164,13 +193,13 @@ const Title = styled.div`
 const MenuContainer = styled.div`
   font-family: "Lato";
   display: flex;
-  align-items: center;
   gap: 10px;
+  align-items: center;
   background: #333;
   padding: 5px 8px;
   border-radius: 10px;
-  cursor: pointer;
   position: relative;
+  cursor: pointer;
 `;
 
 const MenuButton = styled.div`
@@ -195,7 +224,6 @@ const Dropdown = styled.div`
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
 `;
 
 const DropdownItem = styled(Link)`
@@ -205,6 +233,7 @@ const DropdownItem = styled(Link)`
   text-decoration: none;
   padding: 10px;
   border-radius: 4px;
+  text-align: center;
   cursor: pointer;
 
   &:hover {
@@ -213,8 +242,8 @@ const DropdownItem = styled(Link)`
 `;
 
 const Body = styled.div`
-  flex: 1;
   background: #333;
+  flex: 1;
   display: flex;
   justify-content: center;
 `;
@@ -243,6 +272,15 @@ const NewPostBox = styled.div`
   border-radius: 16px;
   padding: 18px;
   display: flex;
+  margin-bottom: 20px;
+`;
+
+const AllPostBox = styled.div`
+  background: #171717;
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  margin-bottom: 20px;
 `;
 
 const AvatarPost = styled.div`
@@ -260,10 +298,50 @@ const PostContent = styled.form`
   flex: 1;
 `;
 
+const PostHeader = styled.div`
+  display: flex;
+  align-items: center;
+  height: 50px;
+`;
+
+const PostBody = styled.div`
+  margin-top: 8px;
+`;
+
+const PostDescription = styled.div`
+  min-height: 40px;
+  padding: 8px 0;
+
+  display: flex;
+  align-items: center;
+
+  font-family: "Lato";
+  font-weight: 400;
+  font-size: 17px;
+  color: #B7B7B7;
+
+  margin-bottom: 12px;
+  line-height: 1.4;
+`;
+
+
+const PostURL = styled.div`
+  border: 1px solid #4c4c4c;
+  border-radius: 11px;
+  padding: 12px;
+  font-family: "Lato";
+  font-size: 14px;
+  color: #4d4d4d;
+  cursor: pointer;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+`;
+
 const PromptText = styled.div`
   font-family: "Lato";
   font-size: 20px;
-  font-weight: 300;
   color: #707070;
   margin-bottom: 12px;
 `;
@@ -305,11 +383,16 @@ const ShareButton = styled.button<{ disabled: boolean }>`
 const SuggestionsContainer = styled.div`
   width: 328px;
   height: 377px;
+  max-height: 377px;
   background: #171717;
   border-radius: 16px;
   padding: 16px;
+
   position: sticky;
   top: 165px;
+
+  overflow-y: auto;
+
   display: none;
 
   @media (min-width: 1024px) {
@@ -339,17 +422,13 @@ const SuggestionItem = styled.div`
   margin-bottom: 14px;
   background-color: #333333;
   border-radius: 5px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  padding-left: 10px;
-  padding-right: 10px;
-  gap: 8px;
+  padding: 5px 10px 5px 10px;
 `;
 
 const SuggestionAvatar = styled.div`
   width: 39px;
   height: 39px;
-  border-radius: 304px;
+  border-radius: 50%;
   background: #555;
 `;
 
@@ -358,4 +437,10 @@ const SuggestionName = styled.div`
   font-size: 19px;
   color: #fff;
   font-weight: 400;
+`;
+
+const StatusText = styled.div`
+  color: #fff;
+  font-family: "Lato";
+  margin: 20px 0;
 `;
