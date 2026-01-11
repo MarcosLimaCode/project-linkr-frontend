@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
@@ -8,11 +8,39 @@ function Feed() {
 
   const [link, setLink] = useState("");
   const [description, setDescription] = useState("");
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loadingFeed, setLoadingFeed] = useState(true);
+  const [feedError, setFeedError] = useState(false);
+
   const backendUrl = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
   const isDisabled = !link;
+
+  useEffect(() => {
+    setLoadingFeed(true);
+
+    setTimeout(() => {
+      try {
+        const mockPosts = Array.from({ length: 5 }).map((_, index) => ({
+          id: index,
+          user: {
+            name: `user_${index + 1}`,
+            avatar: "https://via.placeholder.com/50",
+          },
+          description: "Esse é um post de exemplo.",
+          link: "https://www.google.com",
+        }));
+
+        setPosts(mockPosts.slice(0, 20));
+      } catch {
+        setFeedError(true);
+      } finally {
+        setLoadingFeed(false);
+      }
+    }, 1500);
+  }, []);
 
   async function handlePost(e: React.FormEvent) {
     e.preventDefault();
@@ -103,8 +131,8 @@ function Feed() {
 
             {feedError && (
               <StatusText>
-                Um erro aconteceu. Atualize a página ou tente novamente em alguns
-                minutos.
+                Um erro aconteceu. Atualize a página ou tente novamente em
+                alguns minutos.
               </StatusText>
             )}
 
@@ -126,11 +154,7 @@ function Feed() {
                   <PostBody>
                     <PostDescription>{post.description}</PostDescription>
 
-                    <PostURL
-                      onClick={() =>
-                        window.open(post.link, "_blank")
-                      }
-                    >
+                    <PostURL onClick={() => window.open(post.link, "_blank")}>
                       {post.link}
                     </PostURL>
                   </PostBody>
@@ -292,6 +316,32 @@ const AvatarPost = styled.div`
   margin-right: 10px;
 `;
 
+const AvatarNewPost = styled.div`
+  width: 50px;
+  height: 50px;
+  border-radius: 26.5px;
+  background-size: cover;
+  background-position: center;
+  border: 5px solid #333333;
+`;
+
+const UserPost = styled.div`
+  padding: 0 16px;
+
+  height: 39px;
+  display: flex;
+  align-items: center;
+
+  font-family: "Lato";
+  font-size: 19px;
+  font-weight: 400;
+  color: #ffffff;
+
+  background-color: #333333;
+  border-radius: 0 15px 15px 0;
+  white-space: nowrap;
+`;
+
 const PostContent = styled.form`
   font-family: "Lato";
   font-weight: 300;
@@ -318,12 +368,11 @@ const PostDescription = styled.div`
   font-family: "Lato";
   font-weight: 400;
   font-size: 17px;
-  color: #B7B7B7;
+  color: #b7b7b7;
 
   margin-bottom: 12px;
   line-height: 1.4;
 `;
-
 
 const PostURL = styled.div`
   border: 1px solid #4c4c4c;
