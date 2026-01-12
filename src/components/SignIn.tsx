@@ -30,6 +30,7 @@ function SignIn() {
       .then((res) => {
         setToken(res.data.token);
         localStorage.setItem("token", res.data.token);
+        localStorage.setItem("image", res.data.image);
         setLoading(false);
         navigate("/feed");
       })
