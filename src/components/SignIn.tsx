@@ -26,18 +26,25 @@ function SignIn() {
     const body = { email, password };
 
     axios
-      .post(backendUrl, body)
-      .then((res) => {
-        setToken(res.data.token);
-        localStorage.setItem("token", res.data.token);
-        setLoading(false);
-        navigate("/feed");
-      })
-      .catch((error: any) => {
-        alert("Usuário e/ou senha inválidos!");
-        console.log(error);
-        setLoading(false);
-      });
+    .post(backendUrl, body)
+    .then((res) => {
+      const { token, user } = res.data;
+
+      setToken(token);
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("userId", user.id);
+      localStorage.setItem("username", user.username);
+      localStorage.setItem("image", user.image);
+
+      setLoading(false);
+      navigate("/feed");
+    })
+    .catch((error: any) => {
+      alert("Usuário e/ou senha inválidos!");
+      console.log(error);
+      setLoading(false);
+    });
   }
 
   return (
