@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { getFeed, postFeed } from "../services/feed-service";
+import { likePost, unlikePost } from "../services/like-service";
+import api from "../services/api";
 
 
 function Feed() {
@@ -52,6 +54,40 @@ async function handlePost(e: React.FormEvent) {
     alert("Erro ao publicar o post");
   }
 };
+
+function hasUserLiked(likes?: { userId: number }[]) {
+  if (!likes || likes.length === 0) return false;
+
+  return likes.some((like) => like.userId === userId);
+}
+
+
+
+async function handleLike(postId: number) {
+  try {
+    const { data } = await api.post(`/likes/${postId}`, null, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    // Atualiza o estado local do feed
+    setPosts((prevPosts) =>
+      prevPosts.map((post) => {
+        if (post.id === postId) {
+          const likes = post.likes ?? [];
+          if (data.liked) {
+            return { ...post, likes: [...likes, { userId: Number(localStorage.getItem("userId")) }] };
+          } else {
+            return { ...post, likes: likes.filter(like => like.userId !== Number(localStorage.getItem("userId"))) };
+          }
+        }
+        return post;
+      })
+    );
+  } catch (err) {
+    console.log(err);
+    alert("Erro ao curtir/descurtir o post");
+  }
+}
 
 
 
@@ -128,25 +164,31 @@ async function handlePost(e: React.FormEvent) {
             )}
 
             {posts.map((post) => (
-              <AllPostBox key={post.id}>
-              <AvatarNewPost
-                style={{ backgroundImage: `url(${post.user.image})` }}
-              />
+          <AllPostBox key={post.id}>
+            <AvatarNewPost
+              style={{ backgroundImage: `url(${post.user.image})` }}
+            />
 
-                <PostContent>
-                  <PostHeader>
-                    <UserPost>{post.user.username}</UserPost>
-                  </PostHeader>
+            <PostContent>
+              <PostHeader>
+                <UserPost>{post.user.username}</UserPost>
+              </PostHeader>
 
-                  <PostBody>
-                    <PostDescription>{post.description}</PostDescription>
+              <PostBody>
+                <PostDescription>{post.description}</PostDescription>
 
-                    <PostURL onClick={() => window.open(post.link, "_blank")}>
-                      {post.link}
-                    </PostURL>
-                  </PostBody>
-                </PostContent>
-              </AllPostBox>
+                <PostURL onClick={() => window.open(post.link, "_blank")}>
+                  {post.link}
+                </PostURL>
+              </PostBody>
+            </PostContent>
+
+            <LikeContainer onClick={() => handleLike(post.id)}>
+              <HeartIcon liked={hasUserLiked(post.likes)} />
+              <LikesCount>{post.likes?.length ?? 0}</LikesCount>
+            </LikeContainer>
+          </AllPostBox>
+
             ))}
           </FeedContainer>
 
@@ -292,6 +334,7 @@ const AllPostBox = styled.div`
   padding: 18px;
   display: flex;
   margin-bottom: 20px;
+  position: relative;
 `;
 
 const AvatarPost = styled.div`
@@ -343,6 +386,7 @@ const PostHeader = styled.div`
 
 const PostBody = styled.div`
   margin-top: 8px;
+  position: relative;
 `;
 
 const PostDescription = styled.div`
@@ -479,4 +523,57 @@ const StatusText = styled.div`
   color: #fff;
   font-family: "Lato";
   margin: 20px 0;
+`;
+
+const LikeRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const Heart = styled.div<{ liked: boolean }>`
+  font-size: 22px;
+  cursor: pointer;
+  user-select: none;
+
+  color: ${({ liked }) => (liked ? "red" : "#aaa")};
+
+  &:hover {
+    transform: scale(1.1);
+  }
+`;
+
+const LikesCount = styled.div`
+  font-family: "Lato";
+  font-size: 11px;
+  color: #b7b7b7;
+`;
+
+
+const LikeContainer = styled.div`
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  left: 22px;
+
+  cursor: pointer;
+`;
+
+
+
+const HeartIcon = styled.div<{ liked: boolean }>`
+  font-size: 20px;
+  line-height: 1;
+  user-select: none;
+
+  color: ${({ liked }) => (liked ? "#AC0000" : "#FFFFFF")};
+
+  &:before {
+    content: "${({ liked }) => (liked ? "❤️" : "🤍")}";
+  }
 `;
