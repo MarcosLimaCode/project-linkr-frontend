@@ -1,7 +1,8 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { getFeed, postFeed } from "../services/feed-service";
+
 
 function Feed() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -12,7 +13,6 @@ function Feed() {
   const [loadingFeed, setLoadingFeed] = useState(true);
   const [feedError, setFeedError] = useState(false);
 
-  const backendUrl = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
   const image = localStorage.getItem("image");
   const navigate = useNavigate();
@@ -20,52 +20,40 @@ function Feed() {
   const isDisabled = !link;
 
   useEffect(() => {
-    setLoadingFeed(true);
-
-    setTimeout(() => {
-      try {
-        const mockPosts = Array.from({ length: 5 }).map((_, index) => ({
-          id: index,
-          user: {
-            name: `user_${index + 1}`,
-            avatar: "https://via.placeholder.com/50",
-          },
-          description: "Esse é um post de exemplo.",
-          link: "https://www.google.com",
-        }));
-
-        setPosts(mockPosts.slice(0, 20));
-      } catch {
-        setFeedError(true);
-      } finally {
-        setLoadingFeed(false);
-      }
-    }, 1500);
-  }, []);
-
-  async function handlePost(e: React.FormEvent) {
-    e.preventDefault();
-
+  async function loadFeed() {
     try {
-      await axios.post(
-        `${backendUrl}/feed`,
-        {
-          link,
-          description,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      navigate(0);
-    } catch {
-      alert("Erro inesperado. Tente novamente mais tarde.");
+      setLoadingFeed(true);
+      const data = await getFeed();
+      setPosts(data);
+    } catch (error) {
+      setFeedError(true);
     } finally {
+      setLoadingFeed(false);
     }
   }
+
+  loadFeed();
+}, []);
+
+async function handlePost(e: React.FormEvent) {
+  e.preventDefault();
+
+  if (!link) return;
+
+  try {
+    await postFeed(link, description);
+
+    setLink("");
+    setDescription("");
+
+    const updatedFeed = await getFeed();
+    setPosts(updatedFeed);
+  } catch (error) {
+    alert("Erro ao publicar o post");
+  }
+};
+
+
 
   return (
     <Container>
@@ -108,14 +96,14 @@ function Feed() {
                   contentEditable
                   onInput={(e) => setLink(e.currentTarget.textContent || "")}
                   data-placeholder="http://..."
+                  suppressContentEditableWarning
                 />
 
                 <FakeInput
                   contentEditable
-                  onInput={(e) =>
-                    setDescription(e.currentTarget.textContent || "")
-                  }
+                  onInput={(e) => setDescription(e.currentTarget.textContent || "")}
                   data-placeholder="Descrição"
+                  suppressContentEditableWarning
                 />
 
                 <ButtonWrapper>
@@ -141,13 +129,13 @@ function Feed() {
 
             {posts.map((post) => (
               <AllPostBox key={post.id}>
-                <AvatarNewPost
-                  style={{ backgroundImage: `url(${post.user.avatar})` }}
-                />
+              <AvatarNewPost
+                style={{ backgroundImage: `url(${post.user.image})` }}
+              />
 
                 <PostContent>
                   <PostHeader>
-                    <UserPost>{post.user.name}</UserPost>
+                    <UserPost>{post.user.username}</UserPost>
                   </PostHeader>
 
                   <PostBody>
