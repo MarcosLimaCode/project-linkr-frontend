@@ -59,6 +59,8 @@ async function handlePost(e: React.FormEvent) {
   }
 };
 
+const userId = Number(localStorage.getItem("userId"));
+
 function hasUserLiked(likes?: { userId: number }[]) {
   if (!likes || likes.length === 0) return false;
 
@@ -68,6 +70,10 @@ function hasUserLiked(likes?: { userId: number }[]) {
 
 
 async function handleLike(postId: number) {
+  const hasLiked = hasUserLiked(
+    posts.find(p => p.id === postId)?.likes
+  );
+
   try {
     const { data } = await api.post(`/likes/${postId}`, null, {
       headers: { Authorization: `Bearer ${token}` }
@@ -112,6 +118,7 @@ async function handleLike(postId: number) {
       setIsSearching(false);
     }
   }
+
 
 
 
