@@ -15,6 +15,10 @@ function Feed() {
   const [loadingFeed, setLoadingFeed] = useState(true);
   const [feedError, setFeedError] = useState(false);
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+
   const token = localStorage.getItem("token");
   const image = localStorage.getItem("image");
   const navigate = useNavigate();
@@ -87,7 +91,28 @@ async function handleLike(postId: number) {
     console.log(err);
     alert("Erro ao curtir/descurtir o post");
   }
+
 }
+
+    async function handleSearch(e?: React.FormEvent) {
+    if (e) e.preventDefault();
+
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    try {
+      setIsSearching(true);
+      const { data } = await api.get("/feed", { params: { search: searchQuery } });
+      setSearchResults(data);
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao buscar posts");
+    } finally {
+      setIsSearching(false);
+    }
+  }
 
 
 
@@ -95,7 +120,19 @@ async function handleLike(postId: number) {
     <Container>
       <Top>
         <Title>Linkr</Title>
-
+          <SearchBar as="form" onSubmit={handleSearch}>
+            <input
+              type="text"
+              placeholder="Procurar linkrs"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <SearchIcon onClick={() => handleSearch()}>
+              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#C6C6C6">
+                <path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/>
+              </svg>
+            </SearchIcon>
+          </SearchBar>
         <MenuContainer onClick={() => setMenuOpen(!menuOpen)}>
           <Avatar
             style={{
@@ -241,6 +278,35 @@ const Title = styled.div`
   font-family: "Passion One";
   font-size: 49px;
   color: #fff;
+`;
+
+const SearchBar = styled.div`
+  position: relative;
+  width: 563px;
+  height: 45px;
+  background: #fff;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+
+  input {
+    width: 100%;
+    height: 90%;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    font-family: "Lato";
+    font-size: 19px;
+    font-weight: 400;
+    color: #C6C6C6;
+  }
+  `;
+  
+const SearchIcon = styled.div`
+  position: absolute;
+  right: 10px;
+  font-size: 20px;
 `;
 
 const MenuContainer = styled.div`
