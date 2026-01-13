@@ -59,6 +59,8 @@ async function handlePost(e: React.FormEvent) {
   }
 };
 
+const userId = Number(localStorage.getItem("userId"));
+
 function hasUserLiked(likes?: { userId: number }[]) {
   if (!likes || likes.length === 0) return false;
 
@@ -68,25 +70,24 @@ function hasUserLiked(likes?: { userId: number }[]) {
 
 
 async function handleLike(postId: number) {
-  try {
-    const { data } = await api.post(`/likes/${postId}`, null, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+  const hasLiked = hasUserLiked(
+    posts.find(p => p.id === postId)?.likes
+  );
 
-    // Atualiza o estado local do feed
-    setPosts((prevPosts) =>
-      prevPosts.map((post) => {
-        if (post.id === postId) {
-          const likes = post.likes ?? [];
-          if (data.liked) {
-            return { ...post, likes: [...likes, { userId: Number(localStorage.getItem("userId")) }] };
-          } else {
-            return { ...post, likes: likes.filter(like => like.userId !== Number(localStorage.getItem("userId"))) };
-          }
-        }
-        return post;
-      })
-    );
+  try {
+    if (hasLiked) {
+      await api.delete(`/likes/${postId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+    } else {
+      await api.post(`/likes/${postId}`, null, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+    }
+
+    const updatedFeed = await getFeed();
+    setPosts(updatedFeed);
+
   } catch (err) {
     console.log(err);
     alert("Erro ao curtir/descurtir o post");
@@ -113,6 +114,7 @@ async function handleLike(postId: number) {
       setIsSearching(false);
     }
   }
+
 
 
 
