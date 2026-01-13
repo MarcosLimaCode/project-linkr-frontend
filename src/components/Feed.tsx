@@ -73,7 +73,6 @@ async function handleLike(postId: number) {
       headers: { Authorization: `Bearer ${token}` }
     });
 
-    // Atualiza o estado local do feed
     setPosts((prevPosts) =>
       prevPosts.map((post) => {
         if (post.id === postId) {
