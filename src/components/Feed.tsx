@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { getFeed, postFeed } from "../services/feed-service";
-import { likePost, unlikePost } from "../services/like-service";
+import { getFeed } from "../services/feed-service";
 import api from "../services/api";
+import axios from "axios";
 
 function Feed() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -15,9 +15,8 @@ function Feed() {
   const [feedError, setFeedError] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
 
+  const backendUrl = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
   const image = localStorage.getItem("image");
   const navigate = useNavigate();
@@ -43,18 +42,23 @@ function Feed() {
   async function handlePost(e: React.FormEvent) {
     e.preventDefault();
 
-    if (!link) return;
-
     try {
-      await postFeed(link, description);
-
-      setLink("");
-      setDescription("");
-
-      const updatedFeed = await getFeed();
-      setPosts(updatedFeed);
-    } catch (error) {
-      alert("Erro ao publicar o post");
+      await axios.post(
+        `${backendUrl}/feed`,
+        {
+          link,
+          description,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      navigate(0);
+    } catch (err) {
+      console.log(err);
+      alert("Erro inesperado. Tente novamente mais tarde.");
     }
   }
 
@@ -67,8 +71,6 @@ function Feed() {
   }
 
   async function handleLike(postId: number) {
-    const hasLiked = hasUserLiked(posts.find((p) => p.id === postId)?.likes);
-
     try {
       const { data } = await api.post(`/likes/${postId}`, null, {
         headers: { Authorization: `Bearer ${token}` },
@@ -107,24 +109,6 @@ function Feed() {
 
   async function handleSearch(e?: React.FormEvent) {
     if (e) e.preventDefault();
-
-    if (!searchQuery.trim()) {
-      setSearchResults([]);
-      return;
-    }
-
-    try {
-      setIsSearching(true);
-      const { data } = await api.get("/feed", {
-        params: { search: searchQuery },
-      });
-      setSearchResults(data);
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao buscar posts");
-    } finally {
-      setIsSearching(false);
-    }
   }
 
   return (
@@ -586,7 +570,7 @@ const SuggestionItem = styled.div`
   margin-bottom: 14px;
   background-color: #333333;
   border-radius: 5px;
-  padding: 5px 10px 5px 10px;
+  padding: 5px 10px;
 `;
 
 const SuggestionAvatar = styled.div`
@@ -607,24 +591,6 @@ const StatusText = styled.div`
   color: #fff;
   font-family: "Lato";
   margin: 20px 0;
-`;
-
-const LikeRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const Heart = styled.div<{ liked: boolean }>`
-  font-size: 22px;
-  cursor: pointer;
-  user-select: none;
-
-  color: ${({ liked }) => (liked ? "red" : "#aaa")};
-
-  &:hover {
-    transform: scale(1.1);
-  }
 `;
 
 const LikesCount = styled.div`
