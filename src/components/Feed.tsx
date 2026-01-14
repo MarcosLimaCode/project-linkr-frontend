@@ -75,19 +75,23 @@ async function handleLike(postId: number) {
   );
 
   try {
-    if (hasLiked) {
-      await api.delete(`/likes/${postId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-    } else {
-      await api.post(`/likes/${postId}`, null, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-    }
+    const { data } = await api.post(`/likes/${postId}`, null, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
 
-    const updatedFeed = await getFeed();
-    setPosts(updatedFeed);
-
+    setPosts((prevPosts) =>
+      prevPosts.map((post) => {
+        if (post.id === postId) {
+          const likes = post.likes ?? [];
+          if (data.liked) {
+            return { ...post, likes: [...likes, { userId: Number(localStorage.getItem("userId")) }] };
+          } else {
+            return { ...post, likes: likes.filter(like => like.userId !== Number(localStorage.getItem("userId"))) };
+          }
+        }
+        return post;
+      })
+    );
   } catch (err) {
     console.log(err);
     alert("Erro ao curtir/descurtir o post");
