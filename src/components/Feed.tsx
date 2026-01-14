@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { getFeed } from "../services/feed-service";
 import api from "../services/api";
 import axios from "axios";
+import { IoPencil, IoTrashBin } from "react-icons/io5";
 
 function Feed() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -144,7 +145,7 @@ function Feed() {
 
           {menuOpen && (
             <Dropdown>
-              <DropdownItem to="/profile">Meu perfil</DropdownItem>
+              <DropdownItem to="user/my-profile">Meu perfil</DropdownItem>
               <DropdownItem to="/">Sair</DropdownItem>
             </Dropdown>
           )}
@@ -212,6 +213,14 @@ function Feed() {
                 <PostContent>
                   <PostHeader>
                     <UserPost>{post.user.username}</UserPost>
+                    <MenuLeft>
+                      <EditButton>
+                        <IoPencil size={25} />
+                      </EditButton>
+                      <DeleteButton>
+                        <IoTrashBin size={25} />
+                      </DeleteButton>
+                    </MenuLeft>
                   </PostHeader>
 
                   <PostBody>
@@ -275,7 +284,6 @@ const Top = styled.div`
   padding: 0 20px;
   z-index: 10;
 `;
-
 const Title = styled.div`
   font-family: "Passion One";
   font-size: 49px;
@@ -309,6 +317,14 @@ const SearchIcon = styled.div`
   position: absolute;
   right: 10px;
   font-size: 20px;
+`;
+
+const EditButton = styled.div`
+  margin-right: 10px;
+  color: white;
+`;
+const DeleteButton = styled.div`
+  color: white;
 `;
 
 const MenuContainer = styled.div`
@@ -449,7 +465,15 @@ const PostContent = styled.form`
 const PostHeader = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   height: 50px;
+`;
+
+const MenuLeft = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 const PostBody = styled.div`
