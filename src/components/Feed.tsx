@@ -5,7 +5,6 @@ import { getFeed, postFeed } from "../services/feed-service";
 import { likePost, unlikePost } from "../services/like-service";
 import api from "../services/api";
 
-
 function Feed() {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -26,80 +25,87 @@ function Feed() {
   const isDisabled = !link;
 
   useEffect(() => {
-  async function loadFeed() {
+    async function loadFeed() {
+      try {
+        setLoadingFeed(true);
+        const data = await getFeed();
+        setPosts(data);
+      } catch (error) {
+        setFeedError(true);
+      } finally {
+        setLoadingFeed(false);
+      }
+    }
+
+    loadFeed();
+  }, []);
+
+  async function handlePost(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (!link) return;
+
     try {
-      setLoadingFeed(true);
-      const data = await getFeed();
-      setPosts(data);
+      await postFeed(link, description);
+
+      setLink("");
+      setDescription("");
+
+      const updatedFeed = await getFeed();
+      setPosts(updatedFeed);
     } catch (error) {
-      setFeedError(true);
-    } finally {
-      setLoadingFeed(false);
+      alert("Erro ao publicar o post");
     }
   }
 
-  loadFeed();
-}, []);
+  const userId = Number(localStorage.getItem("userId"));
 
-async function handlePost(e: React.FormEvent) {
-  e.preventDefault();
+  function hasUserLiked(likes?: { userId: number }[]) {
+    if (!likes || likes.length === 0) return false;
 
-  if (!link) return;
-
-  try {
-    await postFeed(link, description);
-
-    setLink("");
-    setDescription("");
-
-    const updatedFeed = await getFeed();
-    setPosts(updatedFeed);
-  } catch (error) {
-    alert("Erro ao publicar o post");
+    return likes.some((like) => like.userId === userId);
   }
-};
 
-const userId = Number(localStorage.getItem("userId"));
+  async function handleLike(postId: number) {
+    const hasLiked = hasUserLiked(posts.find((p) => p.id === postId)?.likes);
 
-function hasUserLiked(likes?: { userId: number }[]) {
-  if (!likes || likes.length === 0) return false;
+    try {
+      const { data } = await api.post(`/likes/${postId}`, null, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-  return likes.some((like) => like.userId === userId);
-}
-
-
-
-async function handleLike(postId: number) {
-  const hasLiked = hasUserLiked(
-    posts.find(p => p.id === postId)?.likes
-  );
-
-  try {
-    const { data } = await api.post(`/likes/${postId}`, null, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-    setPosts((prevPosts) =>
-      prevPosts.map((post) => {
-        if (post.id === postId) {
-          const likes = post.likes ?? [];
-          if (data.liked) {
-            return { ...post, likes: [...likes, { userId: Number(localStorage.getItem("userId")) }] };
-          } else {
-            return { ...post, likes: likes.filter(like => like.userId !== Number(localStorage.getItem("userId"))) };
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => {
+          if (post.id === postId) {
+            const likes = post.likes ?? [];
+            if (data.liked) {
+              return {
+                ...post,
+                likes: [
+                  ...likes,
+                  { userId: Number(localStorage.getItem("userId")) },
+                ],
+              };
+            } else {
+              return {
+                ...post,
+                likes: likes.filter(
+                  (like: any) =>
+                    like.userId !== Number(localStorage.getItem("userId"))
+                ),
+              };
+            }
           }
-        }
-        return post;
-      })
-    );
-  } catch (err) {
-    console.log(err);
-    alert("Erro ao curtir/descurtir o post");
+          return post;
+        })
+      );
+    } catch (err) {
+      console.log(err);
+      alert("Erro ao curtir/descurtir o post");
+    }
   }
 
-}
-
-    async function handleSearch(e?: React.FormEvent) {
+  async function handleSearch(e?: React.FormEvent) {
     if (e) e.preventDefault();
 
     if (!searchQuery.trim()) {
@@ -109,7 +115,9 @@ async function handleLike(postId: number) {
 
     try {
       setIsSearching(true);
-      const { data } = await api.get("/feed", { params: { search: searchQuery } });
+      const { data } = await api.get("/feed", {
+        params: { search: searchQuery },
+      });
       setSearchResults(data);
     } catch (err) {
       console.error(err);
@@ -119,26 +127,29 @@ async function handleLike(postId: number) {
     }
   }
 
-
-
-
   return (
     <Container>
       <Top>
         <Title>Linkr</Title>
-          <SearchBar as="form" onSubmit={handleSearch}>
-            <input
-              type="text"
-              placeholder="Procurar linkrs"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <SearchIcon onClick={() => handleSearch()}>
-              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#C6C6C6">
-                <path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/>
-              </svg>
-            </SearchIcon>
-          </SearchBar>
+        <SearchBar as="form" onSubmit={handleSearch}>
+          <input
+            type="text"
+            placeholder="Procurar linkrs"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <SearchIcon onClick={() => handleSearch()}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="24px"
+              viewBox="0 -960 960 960"
+              width="24px"
+              fill="#C6C6C6"
+            >
+              <path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z" />
+            </svg>
+          </SearchIcon>
+        </SearchBar>
         <MenuContainer onClick={() => setMenuOpen(!menuOpen)}>
           <Avatar
             style={{
@@ -180,7 +191,9 @@ async function handleLike(postId: number) {
 
                 <FakeInput
                   contentEditable
-                  onInput={(e) => setDescription(e.currentTarget.textContent || "")}
+                  onInput={(e) =>
+                    setDescription(e.currentTarget.textContent || "")
+                  }
                   data-placeholder="Descrição"
                   suppressContentEditableWarning
                 />
@@ -207,31 +220,30 @@ async function handleLike(postId: number) {
             )}
 
             {posts.map((post) => (
-          <AllPostBox key={post.id}>
-            <AvatarNewPost
-              style={{ backgroundImage: `url(${post.user.image})` }}
-            />
+              <AllPostBox key={post.id}>
+                <AvatarNewPost
+                  style={{ backgroundImage: `url(${post.user.image})` }}
+                />
 
-            <PostContent>
-              <PostHeader>
-                <UserPost>{post.user.username}</UserPost>
-              </PostHeader>
+                <PostContent>
+                  <PostHeader>
+                    <UserPost>{post.user.username}</UserPost>
+                  </PostHeader>
 
-              <PostBody>
-                <PostDescription>{post.description}</PostDescription>
+                  <PostBody>
+                    <PostDescription>{post.description}</PostDescription>
 
-                <PostURL onClick={() => window.open(post.link, "_blank")}>
-                  {post.link}
-                </PostURL>
-              </PostBody>
-            </PostContent>
+                    <PostURL onClick={() => window.open(post.link, "_blank")}>
+                      {post.link}
+                    </PostURL>
+                  </PostBody>
+                </PostContent>
 
-            <LikeContainer onClick={() => handleLike(post.id)}>
-              <HeartIcon liked={hasUserLiked(post.likes)} />
-              <LikesCount>{post.likes?.length ?? 0}</LikesCount>
-            </LikeContainer>
-          </AllPostBox>
-
+                <LikeContainer onClick={() => handleLike(post.id)}>
+                  <HeartIcon liked={hasUserLiked(post.likes)} />
+                  <LikesCount>{post.likes?.length ?? 0}</LikesCount>
+                </LikeContainer>
+              </AllPostBox>
             ))}
           </FeedContainer>
 
@@ -305,10 +317,10 @@ const SearchBar = styled.div`
     font-family: "Lato";
     font-size: 19px;
     font-weight: 400;
-    color: #C6C6C6;
+    color: #c6c6c6;
   }
-  `;
-  
+`;
+
 const SearchIcon = styled.div`
   position: absolute;
   right: 10px;
@@ -621,7 +633,6 @@ const LikesCount = styled.div`
   color: #b7b7b7;
 `;
 
-
 const LikeContainer = styled.div`
   position: absolute;
   bottom: 8px;
@@ -635,8 +646,6 @@ const LikeContainer = styled.div`
 
   cursor: pointer;
 `;
-
-
 
 const HeartIcon = styled.div<{ liked: boolean }>`
   font-size: 20px;
