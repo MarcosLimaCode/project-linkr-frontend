@@ -65,13 +65,14 @@ export default function Timeline() {
 
       {posts.map((post) => (
         <AllPostBox key={post.id}>
-          <AvatarNewPost
-            style={{ backgroundImage: `url(${post.user.image})` }}
-          />
-
-          <PostContent>
-            <PostHeader>
+          <UserHeader>
+            <UserBox>
+              <AvatarNewPost
+                style={{ backgroundImage: `url(${post.user.image})` }}
+              />
               <UserPost>{post.user.username}</UserPost>
+            </UserBox>
+            <PostHeader>
               <MenuLeft>
                 <EditButton>
                   <IoPencil size={25} />
@@ -81,7 +82,20 @@ export default function Timeline() {
                 </DeleteButton>
               </MenuLeft>
             </PostHeader>
-
+          </UserHeader>
+          <PostContent>
+            <LikeContainer
+              onClick={() => {
+                handleLike(post.id);
+              }}
+            >
+              {post.liked ? (
+                <IoHeart size={20} color="red" />
+              ) : (
+                <IoHeartOutline size={20} color="#FFFFFF" />
+              )}
+              <LikesCount>{post.likesCount} likes</LikesCount>
+            </LikeContainer>
             <PostBody>
               <PostDescription>{post.description}</PostDescription>
 
@@ -90,19 +104,6 @@ export default function Timeline() {
               </PostURL>
             </PostBody>
           </PostContent>
-
-          <LikeContainer
-            onClick={() => {
-              handleLike(post.id);
-            }}
-          >
-            {post.liked ? (
-              <IoHeart size={20} color="red" />
-            ) : (
-              <IoHeartOutline size={20} color="#FFFFFF" />
-            )}
-            <LikesCount>{post.likesCount} likes</LikesCount>
-          </LikeContainer>
         </AllPostBox>
       ))}
     </>
@@ -118,6 +119,8 @@ const DeleteButton = styled.div`
 `;
 
 const AllPostBox = styled.div`
+  display: flex;
+  flex-direction: column;
   background: #171717;
   border-radius: 16px;
   padding: 18px;
@@ -129,15 +132,30 @@ const AllPostBox = styled.div`
 const AvatarNewPost = styled.div`
   width: 50px;
   height: 50px;
+
+  position: absolute;
   border-radius: 26.5px;
   background-size: cover;
   background-position: center;
   border: 5px solid #333333;
 `;
 
-const UserPost = styled.div`
-  padding: 0 16px;
+const UserHeader = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+`;
 
+const UserBox = styled.div`
+  display: inline-flex;
+  align-items: center;
+  border-radius: 26.5px;
+`;
+
+const UserPost = styled.div`
+  padding: 0 15px;
+
+  margin-left: 55px;
   height: 39px;
   display: flex;
   align-items: center;
@@ -146,13 +164,16 @@ const UserPost = styled.div`
   font-size: 19px;
   font-weight: 400;
   color: #ffffff;
-
-  background-color: #333333;
+  background: #333333;
   border-radius: 0 15px 15px 0;
   white-space: nowrap;
+  border-right: 8px solid #333333;
 `;
 
 const PostContent = styled.form`
+  display: flex;
+  flex-direction: row;
+
   font-family: "Lato";
   font-weight: 300;
   flex: 1;
@@ -173,7 +194,9 @@ const MenuLeft = styled.div`
 `;
 
 const PostBody = styled.div`
+  width: 100vw;
   margin-top: 8px;
+  margin-left: 10px;
   position: relative;
 `;
 
@@ -215,13 +238,12 @@ const LikesCount = styled.div`
 `;
 
 const LikeContainer = styled.div`
-  position: absolute;
-  bottom: 8px;
-  left: 0;
-
+  width: 100px;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   align-items: center;
+  margin-right: 10px;
   gap: 4px;
   left: 22px;
   padding-bottom: 10px;
