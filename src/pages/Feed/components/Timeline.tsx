@@ -3,6 +3,7 @@ import { IoHeart, IoHeartOutline, IoPencil, IoTrashBin } from "react-icons/io5";
 import styled from "styled-components";
 import { getFeed } from "../../../services/feed-service";
 import api from "../../../services/api";
+import { Link } from "react-router-dom";
 
 export default function Timeline() {
   const [posts, setPosts] = useState<any[]>([]);
@@ -66,7 +67,7 @@ export default function Timeline() {
       {posts.map((post) => (
         <AllPostBox key={post.id}>
           <UserHeader>
-            <UserBox>
+            <UserBox to={`/user/${post.userId}`}>
               <AvatarNewPost
                 style={{ backgroundImage: `url(${post.user.image})` }}
               />
@@ -146,10 +147,11 @@ const UserHeader = styled.div`
   justify-content: space-between;
 `;
 
-const UserBox = styled.div`
+const UserBox = styled(Link)`
   display: inline-flex;
   align-items: center;
   border-radius: 26.5px;
+  text-decoration: none;
 `;
 
 const UserPost = styled.div`
