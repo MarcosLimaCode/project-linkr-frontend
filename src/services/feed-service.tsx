@@ -27,3 +27,15 @@ export async function getFeed() {
 export async function postFeed(link: string, description: string) {
   await api.post("/feed", { link, description });
 }
+
+export async function getSuggestions() {
+  const token = localStorage.getItem("token");
+
+  const response = await api.get<PostData[]>("/suggestions", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  console.log(response.data);
+  return response.data;
+}
