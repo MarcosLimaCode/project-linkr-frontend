@@ -5,6 +5,7 @@ import { useState } from "react";
 import AuthContext from "../contexts/AuthContext.tsx";
 import Feed from "../components/Feed.tsx";
 import MyUserProfile from "../components/MyUserProfile.tsx";
+import UsersProfile from "../components/UsersProfile.tsx";
 
 export default function AppRoutes() {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -16,7 +17,8 @@ export default function AppRoutes() {
           <Route path="/" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/feed" element={<Feed />} />
-          <Route path="/user/my-profile" element={<MyUserProfile />} />          
+          <Route path="/user/my-profile" element={<MyUserProfile />} />
+          <Route path="/user/:id" element={<UsersProfile />} />          
         </Routes>
       </BrowserRouter>
     </AuthContext.Provider>

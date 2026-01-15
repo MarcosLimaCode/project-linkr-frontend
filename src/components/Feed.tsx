@@ -31,6 +31,7 @@ function Feed() {
         const data = await getFeed();
         setPosts(data);
       } catch (error) {
+        console.log(error);
         setFeedError(true);
       } finally {
         setLoadingFeed(false);
@@ -145,7 +146,7 @@ function Feed() {
 
           {menuOpen && (
             <Dropdown>
-              <DropdownItem to="user/my-profile">Meu perfil</DropdownItem>
+              <DropdownItem to="/user/my-profile">Meu perfil</DropdownItem>
               <DropdownItem to="/">Sair</DropdownItem>
             </Dropdown>
           )}
