@@ -138,7 +138,7 @@ function MyUserProfile() {
 
           {menuOpen && (
             <Dropdown>
-              <DropdownItem to="/profile">Meu perfil</DropdownItem>
+              <DropdownItem to="/user/my-profile">Meu perfil</DropdownItem>
               <DropdownItem to="/">Sair</DropdownItem>
             </Dropdown>
           )}
