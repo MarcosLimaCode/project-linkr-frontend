@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import SignUp from "../components/SignUp";
-import SignIn from "../components/SignIn";
+import SignUp from "../pages/SignUp.tsx";
+import SignIn from "../pages/SignIn.tsx";
 import { useState } from "react";
 import AuthContext from "../contexts/AuthContext.tsx";
-import Feed from "../components/Feed.tsx";
+import FeedPage from "../pages/Feed/FeedPage.tsx";
 import MyUserProfile from "../components/MyUserProfile.tsx";
 import UsersProfile from "../components/UsersProfile.tsx";
 
@@ -16,9 +16,9 @@ export default function AppRoutes() {
         <Routes>
           <Route path="/" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/feed" element={<Feed />} />
+          <Route path="/feed" element={<FeedPage />} />
           <Route path="/user/my-profile" element={<MyUserProfile />} />
-          <Route path="/user/:id" element={<UsersProfile />} />          
+          <Route path="/user/:id" element={<UsersProfile />} />
         </Routes>
       </BrowserRouter>
     </AuthContext.Provider>

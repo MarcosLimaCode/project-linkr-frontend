@@ -14,7 +14,13 @@ export type PostData = {
 };
 
 export async function getFeed() {
-  const response = await api.get<PostData[]>("/feed");
+  const token = localStorage.getItem("token");
+
+  const response = await api.get<PostData[]>("/feed", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   return response.data;
 }
 
