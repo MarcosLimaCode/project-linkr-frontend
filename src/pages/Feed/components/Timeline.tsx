@@ -9,6 +9,8 @@ export default function Timeline() {
   const [posts, setPosts] = useState<any[]>([]);
   const [loadingFeed, setLoadingFeed] = useState(true);
   const [feedError, setFeedError] = useState(false);
+  const imageError =
+    "https://lojaintegrada.com.br/hub//wp-content/uploads/2023/05/erro-404-1024x684.webp";
 
   useEffect(() => {
     async function loadFeed() {
@@ -101,7 +103,14 @@ export default function Timeline() {
               <PostDescription>{post.description}</PostDescription>
 
               <PostURL onClick={() => window.open(post.link, "_blank")}>
-                {post.link}
+                <Image src={post.metadata.images[0] || imageError} />
+                <Content>
+                  <Title>{post.metadata.title || "Título indisponível"}</Title>
+                  <Description>
+                    {post.metadata.description || "Descrição indisponível"}
+                  </Description>
+                  {post.link}
+                </Content>
               </PostURL>
             </PostBody>
           </PostContent>
@@ -219,17 +228,48 @@ const PostDescription = styled.div`
 `;
 
 const PostURL = styled.div`
+  min-height: max-content;
+  max-width: 100%;
+  display: flex;
   border: 1px solid #4c4c4c;
   border-radius: 11px;
   padding: 12px;
   font-family: "Lato";
   font-size: 14px;
   color: #4d4d4d;
+  word-break: break-all;
+  overflow-wrap: break-word;
   cursor: pointer;
 
   &:hover {
     background: #f5f5f5;
   }
+`;
+
+const Image = styled.img`
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-right: 12px;
+`;
+
+const Content = styled.div`
+  max-width: 70%;
+  max-height: fit-content;
+  display: flex;
+  flex-direction: column;
+`;
+
+const Title = styled.div`
+  font-weight: bold;
+  margin-bottom: 6px;
+`;
+
+const Description = styled.div`
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 8px;
 `;
 
 const LikesCount = styled.div`
