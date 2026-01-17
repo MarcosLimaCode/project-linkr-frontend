@@ -200,6 +200,7 @@ export default function Timeline() {
                 )}
                 <LikesCount>
                   {post.likesCount} {post.likesCount === 1 ? "like" : "likes"}
+                  <TooltipLike>João, Maria e outras 11 pessoas</TooltipLike>
                 </LikesCount>
               </LikeContainer>
               <PostBody>
@@ -383,8 +384,32 @@ const Url = styled.div`
 const LikesCount = styled.div`
   font-family: "Lato";
   font-size: 11px;
+  position: relative;
   color: #b7b7b7;
   margin-top: 5px;
+
+  &:hover span {
+    visibility: visible;
+    opacity: 1;
+    margin-top: 20px;
+  }
+`;
+
+const TooltipLike = styled.span`
+  visibility: hidden;
+  width: 140px;
+  background-color: white;
+  color: #333333;
+  text-align: center;
+  border-radius: 4px;
+  padding: 8px;
+  position: absolute;
+  z-index: 11;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  opacity: 0;
+  font-size: 12px;
 `;
 
 const LikeContainer = styled.div`
@@ -580,4 +605,16 @@ const ConfirmButton = styled.button`
 const StyledPostSkeleton = styled(Skeleton)`
   margin-bottom: 5px;
   display: block;
+`;
+
+const TooltipWrapper = styled.div`
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+
+  &:hover span {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(-10px);
+  }
 `;
