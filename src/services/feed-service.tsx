@@ -58,7 +58,6 @@ export async function updatePost(
 ) {
   const backendUrl = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
-  console.log("ESSA É O ID -------------------->", id);
   try {
     await axios.put(
       `${backendUrl}/post/${id}`,
@@ -74,6 +73,21 @@ export async function updatePost(
     );
   } catch (err) {
     console.log(err);
-    alert("Erro inesperado. Tente novamente mais tarde.");
+    alert("Não foi possível atualizar o post. Tente novamente mais tarde.");
+  }
+}
+
+export async function deletePost(id: number) {
+  const backendUrl = import.meta.env.VITE_API_URL;
+  const token = localStorage.getItem("token");
+  try {
+    await axios.delete(`${backendUrl}/post/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+    alert("Não foi possível apagar o post. Tente novamente mais tarde.");
   }
 }
