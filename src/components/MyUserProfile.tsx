@@ -36,10 +36,9 @@ function MyUserProfile() {
   const userId = Number(localStorage.getItem("userId"));
   const avatarImage = localStorage.getItem("image");
 
-
   async function loadProfile() {
     try {
-      const { data } = await api.get("/users/me", {
+      const { data } = await api.get("/user/my-profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -49,7 +48,6 @@ function MyUserProfile() {
       alert("Erro ao carregar perfil");
     }
   }
-
 
   async function loadMyPosts() {
     try {
@@ -68,7 +66,6 @@ function MyUserProfile() {
     loadMyPosts();
   }, []);
 
-
   function handleEdit() {
     setIsEditing(true);
   }
@@ -80,7 +77,7 @@ function MyUserProfile() {
 
   async function handleSave() {
     try {
-      await api.put("/users/me", editedData, {
+      await api.put("/user/my-profile", editedData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -91,25 +88,27 @@ function MyUserProfile() {
     }
   }
 
-      async function handleSearch(e?: React.FormEvent) {
-      if (e) e.preventDefault();
-  
-      if (!searchQuery.trim()) {
-        setSearchResults([]);
-        return;
-      }
-  
-      try {
-        setIsSearching(true);
-        const { data } = await api.get("/feed", { params: { search: searchQuery } });
-        setSearchResults(data);
-      } catch (err) {
-        console.error(err);
-        alert("Erro ao buscar posts");
-      } finally {
-        setIsSearching(false);
-      }
+  async function handleSearch(e?: React.FormEvent) {
+    if (e) e.preventDefault();
+
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
     }
+
+    try {
+      setIsSearching(true);
+      const { data } = await api.get("/feed", {
+        params: { search: searchQuery },
+      });
+      setSearchResults(data);
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao buscar posts");
+    } finally {
+      setIsSearching(false);
+    }
+  }
 
   return (
     <Container>
