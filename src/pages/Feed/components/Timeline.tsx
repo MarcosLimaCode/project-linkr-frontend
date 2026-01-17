@@ -1,12 +1,20 @@
+import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import { useEffect, useState } from "react";
 import { IoHeart, IoHeartOutline, IoPencil, IoTrashBin } from "react-icons/io5";
 import styled from "styled-components";
-import { getFeed, getUserId, updatePost } from "../../../services/feed-service";
+import {
+  deletePost,
+  getFeed,
+  getUserId,
+  updatePost,
+} from "../../../services/feed-service";
 import api from "../../../services/api";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Timeline() {
   const [editingPost, setEditingPost] = useState<any | null>(null);
+  const [deletingPost, setDeletingPost] = useState<any | null>(null);
   const [link, setLink] = useState("");
   const [description, setDescription] = useState("");
   const [posts, setPosts] = useState<any[]>([]);
@@ -22,6 +30,20 @@ export default function Timeline() {
       setLink(editingPost.link);
       setDescription(editingPost.description);
     }
+  }, [editingPost]);
+
+  useEffect(() => {
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setEditingPost(null);
+      }
+    };
+
+    window.addEventListener("keydown", handleEsc);
+
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+    };
   }, [editingPost]);
 
   useEffect(() => {
@@ -67,113 +89,142 @@ export default function Timeline() {
 
   return (
     <>
-      {loadingFeed && <StatusText>Carregando posts...</StatusText>}
-      {feedError && (
-        <StatusText>
-          Um erro aconteceu. Atualize a página ou tente novamente em alguns
-          minutos.
-        </StatusText>
-      )}
+      <SkeletonTheme
+        baseColor="#202020"
+        highlightColor="#444"
+        width={620}
+        height={340}
+        borderRadius={25}
+      >
+        {loadingFeed && <StyledPostSkeleton count={20} />}
+        {feedError && (
+          <StatusText>
+            Um erro aconteceu. Atualize a página ou tente novamente em alguns
+            minutos.
+          </StatusText>
+        )}
 
-      {!loadingFeed && posts.length === 0 && (
-        <StatusText>Nenhuma postagem no momento...</StatusText>
-      )}
-      {posts.map((post) => (
-        <AllPostBox key={post.id}>
-          <UserHeader>
-            <UserBox to={`/user/${post.userId}`}>
-              <AvatarNewPost
-                style={{ backgroundImage: `url(${post.user.image})` }}
-              />
-              <UserPost>{post.user.username}</UserPost>
-            </UserBox>
-            <PostHeader>
-              {post.userId === loginId && (
-                <MenuLeft>
-                  <EditButton onClick={() => setEditingPost(post)}>
-                    <IoPencil size={25} />
-                  </EditButton>
-                  {editingPost && (
-                    <EditContainer>
-                      <Box>
-                        <TitleEdit>Link do post:</TitleEdit>
-                        <InputLink
-                          type="text"
-                          defaultValue={editingPost.link}
-                          onChange={(e) => setLink(e.target.value)}
-                        />
-                        <DescriptionEdit>Descrição do post:</DescriptionEdit>
-                        <InputDescription
-                          defaultValue={editingPost.description}
-                          onChange={(e) => setDescription(e.target.value)}
-                        />
-                        <ButtonBox>
-                          <CloseButton onClick={() => setEditingPost(null)}>
-                            Fechar
-                          </CloseButton>
-                          <UpdateButton
-                            onClick={async () => {
-                              await updatePost(
-                                editingPost.id,
-                                link,
-                                description
-                              );
-                              setEditingPost(null);
-                              navigate(0);
-                            }}
-                          >
-                            Atualizar
-                          </UpdateButton>
-                        </ButtonBox>
-                      </Box>
-                    </EditContainer>
-                  )}
-                  <DeleteButton>
-                    <IoTrashBin size={25} />
-                  </DeleteButton>
-                </MenuLeft>
-              )}
-            </PostHeader>
-          </UserHeader>
-          <PostContent>
-            <LikeContainer
-              onClick={() => {
-                handleLike(post.id);
-              }}
-            >
-              {post.liked ? (
-                <IoHeart size={20} color="red" />
-              ) : (
-                <IoHeartOutline size={20} color="#FFFFFF" />
-              )}
-              <LikesCount>
-                {post.likesCount} {post.likesCount === 1 ? "like" : "likes"}
-              </LikesCount>
-            </LikeContainer>
-            <PostBody>
-              <PostDescription>{post.description}</PostDescription>
+        {!loadingFeed && posts.length === 0 && (
+          <StatusText>Nenhuma postagem no momento...</StatusText>
+        )}
+        {posts.map((post) => (
+          <AllPostBox key={post.id}>
+            <UserHeader>
+              <UserBox to={`/user/${post.userId}`}>
+                <AvatarNewPost
+                  style={{ backgroundImage: `url(${post.user.image})` }}
+                />
+                <UserPost>{post.user.username}</UserPost>
+              </UserBox>
+              <PostHeader>
+                {post.userId === loginId && (
+                  <MenuLeft>
+                    <EditButton onClick={() => setEditingPost(post)}>
+                      <IoPencil size={25} />
+                    </EditButton>
+                    {editingPost && (
+                      <EditContainer onClick={() => setEditingPost(null)}>
+                        <Box onClick={(e) => e.stopPropagation()}>
+                          <TitleEdit>Link do post:</TitleEdit>
+                          <InputLink
+                            type="text"
+                            defaultValue={editingPost.link}
+                            onChange={(e) => setLink(e.target.value)}
+                          />
+                          <DescriptionEdit>Descrição do post:</DescriptionEdit>
+                          <InputDescription
+                            defaultValue={editingPost.description}
+                            onChange={(e) => setDescription(e.target.value)}
+                          />
+                          <ButtonBox>
+                            <CloseButton onClick={() => setEditingPost(null)}>
+                              Fechar
+                            </CloseButton>
+                            <UpdateButton
+                              onClick={async () => {
+                                await updatePost(
+                                  editingPost.id,
+                                  link,
+                                  description
+                                );
+                                setEditingPost(null);
+                                navigate(0);
+                              }}
+                            >
+                              Atualizar
+                            </UpdateButton>
+                          </ButtonBox>
+                        </Box>
+                      </EditContainer>
+                    )}
+                    <DeleteButton onClick={() => setDeletingPost(post)}>
+                      <IoTrashBin size={25} />
+                    </DeleteButton>
+                    {deletingPost && (
+                      <DeleteContainer onClick={() => setDeletingPost(null)}>
+                        <BoxDelete onClick={(e) => e.stopPropagation()}>
+                          <TitleDelete>
+                            Você tem certeza que gostaria de remover a postagem?
+                          </TitleDelete>
+                          <ButtonBoxDelete>
+                            <CancelButton onClick={() => setDeletingPost(null)}>
+                              Cancelar
+                            </CancelButton>
+                            <ConfirmButton
+                              onClick={async () => {
+                                await deletePost(deletingPost.id);
+                                setDeletingPost(null);
+                                navigate(0);
+                              }}
+                            >
+                              Confirmar
+                            </ConfirmButton>
+                          </ButtonBoxDelete>
+                        </BoxDelete>
+                      </DeleteContainer>
+                    )}
+                  </MenuLeft>
+                )}
+              </PostHeader>
+            </UserHeader>
+            <PostContent>
+              <LikeContainer
+                onClick={() => {
+                  handleLike(post.id);
+                }}
+              >
+                {post.liked ? (
+                  <IoHeart size={20} color="red" />
+                ) : (
+                  <IoHeartOutline size={20} color="#FFFFFF" />
+                )}
+                <LikesCount>
+                  {post.likesCount} {post.likesCount === 1 ? "like" : "likes"}
+                </LikesCount>
+              </LikeContainer>
+              <PostBody>
+                <PostDescription>{post.description}</PostDescription>
 
-              <PostURL onClick={() => window.open(post.link, "_blank")}>
-                <Content>
-                  <Title>{post.metadata.title || "Título indisponível"}</Title>
-                  <Description>
-                    {post.metadata.description || "Descrição indisponível"}
-                  </Description>
-                  <Url>{post.link}</Url>
-                </Content>
-                <Image src={post.metadata.images[0] || imageError} />
-              </PostURL>
-            </PostBody>
-          </PostContent>
-        </AllPostBox>
-      ))}
+                <PostURL onClick={() => window.open(post.link, "_blank")}>
+                  <Content>
+                    <Title>
+                      {post.metadata.title || "Título indisponível"}
+                    </Title>
+                    <Description>
+                      {post.metadata.description || "Descrição indisponível"}
+                    </Description>
+                    <Url>{post.link}</Url>
+                  </Content>
+                  <Image src={post.metadata.images[0] || imageError} />
+                </PostURL>
+              </PostBody>
+            </PostContent>
+          </AllPostBox>
+        ))}
+      </SkeletonTheme>
     </>
   );
 }
-
-const DeleteButton = styled.div`
-  color: white;
-`;
 
 const AllPostBox = styled.div`
   display: flex;
@@ -449,4 +500,84 @@ const UpdateButton = styled.button`
   border: none;
   font-weight: 700;
   cursor: pointer;
+`;
+
+const DeleteContainer = styled.div`
+  font-family: "Lato", sans-serif;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+  background-color: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(12px);
+`;
+
+const DeleteButton = styled.div`
+  margin-right: 10px;
+  color: white;
+  cursor: pointer;
+`;
+
+const BoxDelete = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 260px;
+  background-color: #333333;
+  border-radius: 20px;
+  z-index: 100;
+`;
+
+const TitleDelete = styled.h2`
+  color: white;
+  font-size: 34px;
+  text-align: center;
+  margin: 37px 50px 10px 50px;
+`;
+
+const ButtonBoxDelete = styled.div`
+  font-size: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  height: 80px;
+`;
+
+const CancelButton = styled.button`
+  width: 130px;
+  height: 31px;
+  background: #ffffff;
+  color: #1877f2;
+  margin-right: 30px;
+  border-radius: 5px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+`;
+
+const ConfirmButton = styled.button`
+  width: 130px;
+  height: 31px;
+  background: #1877f2;
+  color: #ffffff;
+  border-radius: 5px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+`;
+
+const StyledPostSkeleton = styled(Skeleton)`
+  margin-bottom: 5px;
+  display: block;
 `;
