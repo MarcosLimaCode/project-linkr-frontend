@@ -606,15 +606,3 @@ const StyledPostSkeleton = styled(Skeleton)`
   margin-bottom: 5px;
   display: block;
 `;
-
-const TooltipWrapper = styled.div`
-  position: relative;
-  display: inline-block;
-  cursor: pointer;
-
-  &:hover span {
-    visibility: visible;
-    opacity: 1;
-    transform: translateX(-50%) translateY(-10px);
-  }
-`;
