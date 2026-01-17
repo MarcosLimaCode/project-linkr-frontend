@@ -14,7 +14,7 @@ export default function Header() {
 
   return (
     <Top>
-      <Title>Linkr</Title>
+      <Title to={"/feed"}>Linkr</Title>
       <SearchBar as="form" onSubmit={handleSearch}>
         <input
           type="text"
@@ -58,10 +58,11 @@ const Top = styled.div`
   padding: 0 20px;
   z-index: 10;
 `;
-const Title = styled.div`
+const Title = styled(Link)`
   font-family: "Passion One";
   font-size: 49px;
   color: #fff;
+  text-decoration: none;
 `;
 
 const SearchBar = styled.div`

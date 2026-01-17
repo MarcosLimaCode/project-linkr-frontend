@@ -1,4 +1,5 @@
 import api from "./api";
+import axios from "axios";
 
 export type PostData = {
   id: number;
@@ -24,6 +25,17 @@ export async function getFeed() {
   return response.data;
 }
 
+export async function getUserId() {
+  const token = localStorage.getItem("token");
+
+  const result = await api.get("/user/my-profile", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return result.data.user.id;
+}
+
 export async function postFeed(link: string, description: string) {
   await api.post("/feed", { link, description });
 }
@@ -36,6 +48,32 @@ export async function getSuggestions() {
       Authorization: `Bearer ${token}`,
     },
   });
-  console.log(response.data);
   return response.data;
+}
+
+export async function updatePost(
+  id: number,
+  link: string,
+  description: string
+) {
+  const backendUrl = import.meta.env.VITE_API_URL;
+  const token = localStorage.getItem("token");
+  console.log("ESSA É O ID -------------------->", id);
+  try {
+    await axios.put(
+      `${backendUrl}/post/${id}`,
+      {
+        link,
+        description,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+  } catch (err) {
+    console.log(err);
+    alert("Erro inesperado. Tente novamente mais tarde.");
+  }
 }

@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { getSuggestions } from "../../../services/feed-service";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function Suggestions() {
   const [suggestions, setSuggestions] = useState<any[]>([]);
@@ -27,7 +28,7 @@ export default function Suggestions() {
         .sort(() => Math.random() - 0.5)
         .slice(0, 5)
         .map((user) => (
-          <SuggestionItem key={user.id}>
+          <SuggestionItem to={`/user/${user.id}`} key={user.id}>
             <SuggestionAvatar
               style={{
                 backgroundImage: `url("${user.image}")`,
@@ -75,7 +76,7 @@ const Divider = styled.div`
   margin: 12px 0;
 `;
 
-const SuggestionItem = styled.div`
+const SuggestionItem = styled(Link)`
   display: flex;
   align-items: center;
   gap: 12px;
@@ -83,6 +84,7 @@ const SuggestionItem = styled.div`
   background-color: #333333;
   border-radius: 5px;
   padding: 5px 10px;
+  text-decoration: none;
 `;
 
 const SuggestionAvatar = styled.div`
