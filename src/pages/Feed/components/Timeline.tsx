@@ -10,9 +10,13 @@ import {
   updatePost,
 } from "../../../services/feed-service";
 import api from "../../../services/api";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-export default function Timeline() {
+interface NewPostProps {
+  onPostSuccess: () => void;
+}
+
+export default function Timeline({ onPostSuccess }: NewPostProps) {
   const [editingPost, setEditingPost] = useState<any | null>(null);
   const [deletingPost, setDeletingPost] = useState<any | null>(null);
   const [link, setLink] = useState("");
@@ -20,7 +24,6 @@ export default function Timeline() {
   const [posts, setPosts] = useState<any[]>([]);
   const [loadingFeed, setLoadingFeed] = useState(true);
   const [feedError, setFeedError] = useState(false);
-  const navigate = useNavigate();
   const imageError =
     "https://lojaintegrada.com.br/hub//wp-content/uploads/2023/05/erro-404-1024x684.webp";
   const [loginId, setLoginId] = useState(true);
@@ -148,7 +151,7 @@ export default function Timeline() {
                                   description
                                 );
                                 setEditingPost(null);
-                                navigate(0);
+                                onPostSuccess();
                               }}
                             >
                               Atualizar
@@ -174,7 +177,7 @@ export default function Timeline() {
                               onClick={async () => {
                                 await deletePost(deletingPost.id);
                                 setDeletingPost(null);
-                                navigate(0);
+                                onPostSuccess();
                               }}
                             >
                               Confirmar
