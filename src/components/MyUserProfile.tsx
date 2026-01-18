@@ -1,22 +1,15 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import styled from "styled-components";
 import api from "../services/api";
 import { getFeed } from "../services/feed-service";
+import Header from "../pages/Feed/components/Header";
 
 function MyUserProfile() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [posts, setPosts] = useState<any[]>([]);
   const [loadingFeed, setLoadingFeed] = useState(true);
   const [feedError, setFeedError] = useState(false);
 
   const [isEditing, setIsEditing] = useState(false);
-
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-
-  const image = localStorage.getItem("image");
 
   const [userData, setUserData] = useState({
     name: "",
@@ -34,7 +27,6 @@ function MyUserProfile() {
 
   const token = localStorage.getItem("token");
   const userId = Number(localStorage.getItem("userId"));
-  const avatarImage = localStorage.getItem("image");
 
   async function loadProfile() {
     try {
@@ -88,62 +80,9 @@ function MyUserProfile() {
     }
   }
 
-  async function handleSearch(e?: React.FormEvent) {
-    if (e) e.preventDefault();
-
-    if (!searchQuery.trim()) {
-      setSearchResults([]);
-      return;
-    }
-
-    try {
-      setIsSearching(true);
-      const { data } = await api.get("/feed", {
-        params: { search: searchQuery },
-      });
-      setSearchResults(data);
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao buscar posts");
-    } finally {
-      setIsSearching(false);
-    }
-  }
-
   return (
     <Container>
-<Top>
-        <Title>Linkr</Title>
-          <SearchBar as="form" onSubmit={handleSearch}>
-            <input
-              type="text"
-              placeholder="Procurar linkrs"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <SearchIcon onClick={() => handleSearch()}>
-              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#C6C6C6">
-                <path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/>
-              </svg>
-            </SearchIcon>
-          </SearchBar>
-        <MenuContainer onClick={() => setMenuOpen(!menuOpen)}>
-          <Avatar
-            style={{
-              backgroundImage: `url(${image})`,
-            }}
-          />
-          <MenuButton>☰</MenuButton>
-
-          {menuOpen && (
-            <Dropdown>
-              <DropdownItem to="/user/my-profile">Meu perfil</DropdownItem>
-              <DropdownItem to="/">Sair</DropdownItem>
-            </Dropdown>
-          )}
-        </MenuContainer>
-      </Top>
-
+      <Header />
       <Body>
         <ContentWrapper>
           <ProfileActions>
@@ -245,7 +184,6 @@ function MyUserProfile() {
         <BottomItem>🔍</BottomItem>
         <BottomItem>☰</BottomItem>
       </BottomBar>
-
     </Container>
   );
 }
@@ -254,104 +192,6 @@ export default MyUserProfile;
 
 const Container = styled.div`
   min-height: 100vh;
-`;
-
-const Top = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-
-  height: 70px;
-  background: #151515;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 0 20px;
-  box-sizing: border-box;
-
-  z-index: 10;
-
-  @media (max-width: 768px) {
-    display: none;
-  }
-`;
-
-
-const Title = styled.div`
-  font-family: "Passion One";
-  font-size: 49px;
-  color: #fff;
-`;
-
-const SearchBar = styled.div`
-  position: relative;
-  width: 563px;
-  height: 45px;
-  background: #fff;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  padding: 0 10px;
-
-  input {
-    width: 100%;
-    border: none;
-    outline: none;
-    font-size: 19px;
-  }
-
-  @media (max-width: 768px) {
-    display: none;
-  }
-`;
-
-const SearchIcon = styled.div`
-  position: absolute;
-  right: 10px;
-  font-size: 20px;
-`;
-
-const MenuContainer = styled.div`
-  font-family: "Lato";
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  background: #333;
-  padding: 5px 8px;
-  border-radius: 10px;
-  position: relative;
-  cursor: pointer;
-`;
-
-const MenuButton = styled.div`
-  color: #fff;
-  font-size: 28px;
-`;
-
-const Avatar = styled.div`
-  width: 53px;
-  height: 53px;
-  border-radius: 10%;
-  background-size: cover;
-`;
-
-const Dropdown = styled.div`
-  position: absolute;
-  top: 70px;
-  right: 20px;
-  background: #333;
-  padding: 10px;
-  border-radius: 8px;
-`;
-
-const DropdownItem = styled(Link)`
-  color: #fff;
-  text-decoration: none;
-  display: block;
-  margin-bottom: 10px;
 `;
 
 const Body = styled.div`
@@ -385,7 +225,6 @@ const ProfileActions = styled.div`
   }
 `;
 
-
 const ActionButton = styled.button`
   width: 124px;
   height: 39px;
@@ -399,7 +238,7 @@ const ActionButton = styled.button`
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    font-size: 0; 
+    font-size: 0;
 
     &::before {
       content: "✏️";
@@ -407,8 +246,6 @@ const ActionButton = styled.button`
     }
   }
 `;
-
-
 
 const SaveButton = styled(ActionButton)`
   background: #28a745;
@@ -423,8 +260,6 @@ const SaveButton = styled(ActionButton)`
     }
   }
 `;
-
-
 
 const CancelButton = styled(ActionButton)`
   background: #dc3545;

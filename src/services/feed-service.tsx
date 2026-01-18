@@ -33,7 +33,7 @@ export async function getUserId() {
       Authorization: `Bearer ${token}`,
     },
   });
-  return result.data.user.id;
+  return result.data.id;
 }
 
 export async function postFeed(link: string, description: string) {
