@@ -25,7 +25,6 @@ export default function Timeline() {
     "https://lojaintegrada.com.br/hub//wp-content/uploads/2023/05/erro-404-1024x684.webp";
   const [loginId, setLoginId] = useState(true);
 
-  console.log("Teste");
   useEffect(() => {
     if (editingPost) {
       setLink(editingPost.link);
