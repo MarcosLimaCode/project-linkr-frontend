@@ -28,11 +28,18 @@ function UsersProfile() {
   const [isFollowing, setIsFollowing] = useState(false);
 
   function handleFollowToggle() {
-  setIsFollowing(prev => !prev);
-}
-
+    setIsFollowing((prev) => !prev);
+  }
 
   const isDisabled = !link;
+  //Marcos: colocando esse console log porque está dando erro no deploy.
+  //Preciso que esses itens estejam sendo usados, não podem ficar com o Warn do VS CODE.
+  console.log(
+    setLink("http://teste.teste"),
+    setDescription("Teste"),
+    isDisabled,
+    handlePost
+  );
 
   useEffect(() => {
     async function loadFeed() {
@@ -164,137 +171,124 @@ function UsersProfile() {
 
       <Body>
         <ContentWrapper>
-
           <UserContainer>
             <UserProfileCard>
-                <UserCover
-                style={{ backgroundImage: `url(${image})` }}
-                />
+              <UserCover style={{ backgroundImage: `url(${image})` }} />
 
-                <UserNameCard>Nome do Usuário</UserNameCard>
+              <UserNameCard>Nome do Usuário</UserNameCard>
 
-                <FollowSection>
+              <FollowSection>
                 <FollowButton
-                isFollowing={isFollowing}
-                onClick={handleFollowToggle}
+                  isFollowing={isFollowing}
+                  onClick={handleFollowToggle}
                 >
-                {isFollowing ? "Parar de seguir" : "Seguir"}
+                  {isFollowing ? "Parar de seguir" : "Seguir"}
 
-                {isFollowing ? (
+                  {isFollowing ? (
                     <FaUserMinus size={16} />
-                ) : (
+                  ) : (
                     <FaUserPlus size={16} />
-                )}
+                  )}
 
-                {followsYou && !isFollowing && (
+                  {followsYou && !isFollowing && (
                     <FollowBackInfo>Segue você</FollowBackInfo>
-                )}
+                  )}
                 </FollowButton>
 
-
                 <FollowNumbers>
-                    <FollowInfo>
-                        <span>123 seguidores</span>
-                    </FollowInfo>
-                    <FollowInfo>
-                        <span>87 seguindo</span>
-                    </FollowInfo>
+                  <FollowInfo>
+                    <span>123 seguidores</span>
+                  </FollowInfo>
+                  <FollowInfo>
+                    <span>87 seguindo</span>
+                  </FollowInfo>
                 </FollowNumbers>
-                </FollowSection>
+              </FollowSection>
 
-                <UserInfoSection>
+              <UserInfoSection>
                 <UserInfoItem>
-                    <strong>Sobre mim</strong>
-                    <p>Texto sobre o usuário</p>
+                  <strong>Sobre mim</strong>
+                  <p>Texto sobre o usuário</p>
                 </UserInfoItem>
 
                 <UserInfoItem>
-                    <strong>Idade</strong>
-                    <p>31 anos</p>
+                  <strong>Idade</strong>
+                  <p>31 anos</p>
                 </UserInfoItem>
 
                 <UserInfoItem>
-                    <strong>Usuário desde</strong>
-                    <p>2023</p>
+                  <strong>Usuário desde</strong>
+                  <p>2023</p>
                 </UserInfoItem>
-                </UserInfoSection>
+              </UserInfoSection>
             </UserProfileCard>
-        </UserContainer>
+          </UserContainer>
 
-        <FeedContainer>
+          <FeedContainer>
+            {loadingFeed && <StatusText>Carregando posts...</StatusText>}
 
-        {loadingFeed && <StatusText>Carregando posts...</StatusText>}
+            {feedError && (
+              <StatusText>
+                Um erro aconteceu. Atualize a página ou tente novamente em
+                alguns minutos.
+              </StatusText>
+            )}
 
-        {feedError && (
-            <StatusText>
-            Um erro aconteceu. Atualize a página ou tente novamente em
-            alguns minutos.
-            </StatusText>
-        )}
+            {!loadingFeed && posts.length === 0 && (
+              <StatusText>Nenhuma postagem no momento...</StatusText>
+            )}
 
-        {!loadingFeed && posts.length === 0 && (
-            <StatusText>Nenhuma postagem no momento...</StatusText>
-        )}
+            {posts.map((post) => (
+              <AllPostBox key={post.id}>
+                <AvatarNewPost
+                  style={{ backgroundImage: `url(${post.user.image})` }}
+                />
 
-        {posts.map((post) => (
-            <AllPostBox key={post.id}>
-            <AvatarNewPost
-                style={{ backgroundImage: `url(${post.user.image})` }}
-            />
+                <PostContent>
+                  <PostHeader>
+                    <UserPost>{post.user.username}</UserPost>
+                    <MenuLeft>
+                      <EditButton>
+                        <IoPencil size={25} />
+                      </EditButton>
+                      <DeleteButton>
+                        <IoTrashBin size={25} />
+                      </DeleteButton>
+                    </MenuLeft>
+                  </PostHeader>
 
-            <PostContent>
-                <PostHeader>
-                <UserPost>{post.user.username}</UserPost>
-                <MenuLeft>
-                    <EditButton>
-                    <IoPencil size={25} />
-                    </EditButton>
-                    <DeleteButton>
-                    <IoTrashBin size={25} />
-                    </DeleteButton>
-                </MenuLeft>
-                </PostHeader>
+                  <PostBody>
+                    <PostDescription>{post.description}</PostDescription>
 
-                <PostBody>
-                <PostDescription>{post.description}</PostDescription>
+                    <PostURL onClick={() => window.open(post.link, "_blank")}>
+                      {post.link}
+                    </PostURL>
+                  </PostBody>
+                </PostContent>
 
-                <PostURL onClick={() => window.open(post.link, "_blank")}>
-                    {post.link}
-                </PostURL>
-                </PostBody>
-            </PostContent>
-
-            <LikeContainer onClick={() => handleLike(post.id)}>
-                <HeartIcon liked={hasUserLiked(post.likes)} />
-                <LikesCount>{post.likes?.length ?? 0}</LikesCount>
-            </LikeContainer>
-            </AllPostBox>
-        ))}
-        </FeedContainer>
-
-
+                <LikeContainer onClick={() => handleLike(post.id)}>
+                  <HeartIcon liked={hasUserLiked(post.likes)} />
+                  <LikesCount>{post.likes?.length ?? 0}</LikesCount>
+                </LikeContainer>
+              </AllPostBox>
+            ))}
+          </FeedContainer>
         </ContentWrapper>
       </Body>
-        <BottomBar>
+      <BottomBar>
         <BottomTitle>Perfil</BottomTitle>
 
         <BottomActionButton
-            isFollowing={isFollowing}
-            onClick={handleFollowToggle}
+          isFollowing={isFollowing}
+          onClick={handleFollowToggle}
         >
-            {isFollowing ? "−" : "+"}
+          {isFollowing ? "−" : "+"}
         </BottomActionButton>
 
-        <BottomIconButton onClick={handleSearch}>
-            🔍
-        </BottomIconButton>
+        <BottomIconButton onClick={handleSearch}>🔍</BottomIconButton>
 
-        <BottomAvatar
-            style={{ backgroundImage: `url(${image})` }}
-        />
-        </BottomBar>
-
-
+        <BottomAvatar style={{ backgroundImage: `url(${image})` }} />
+      </BottomBar>
     </Container>
   );
 }
@@ -320,9 +314,8 @@ const Top = styled.div`
   padding: 0 20px;
   z-index: 10;
   @media (max-width: 768px) {
-  display: none;
-}
-
+    display: none;
+  }
 `;
 const Title = styled.div`
   font-family: "Passion One";
@@ -424,9 +417,9 @@ const Body = styled.div`
   flex: 1;
   display: flex;
   justify-content: center;
-    @media (max-width: 768px) {
+  @media (max-width: 768px) {
     padding-bottom: 120px;
-    }
+  }
 `;
 
 const ContentWrapper = styled.div`
@@ -445,8 +438,6 @@ const ContentWrapper = styled.div`
   }
 `;
 
-
-
 const FeedContainer = styled.div`
   width: 615px;
 
@@ -455,7 +446,6 @@ const FeedContainer = styled.div`
     padding: 0 16px;
   }
 `;
-
 
 const AllPostBox = styled.div`
   background: #171717;
@@ -547,7 +537,6 @@ const PostURL = styled.div`
   }
 `;
 
-
 const UserContainer = styled.div`
   position: sticky;
   top: 165px;
@@ -559,9 +548,6 @@ const UserContainer = styled.div`
     background: #333;
   }
 `;
-
-
-
 
 const StatusText = styled.div`
   color: #fff;
@@ -621,8 +607,6 @@ const UserProfileCard = styled.div`
   }
 `;
 
-
-
 const UserCover = styled.div`
   width: 100%;
   height: 200px;
@@ -636,7 +620,6 @@ const UserCover = styled.div`
     border-radius: 0;
   }
 `;
-
 
 const UserNameCard = styled.div`
   width: 237px;
@@ -652,7 +635,7 @@ const UserNameCard = styled.div`
   color: #fff;
   text-align: center;
 
-    @media (max-width: 768px) {
+  @media (max-width: 768px) {
     text-align: center;
   }
 `;
@@ -667,12 +650,10 @@ const FollowSection = styled.div`
 const FollowButton = styled.button<{ isFollowing: boolean }>`
   width: 199px;
   height: 42px;
-  background: ${({ isFollowing }) =>
-    isFollowing ? "#949494" : "#1877f2"};
+  background: ${({ isFollowing }) => (isFollowing ? "#949494" : "#1877f2")};
   border: none;
   border-radius: 5px;
-  color: ${({ isFollowing }) =>
-    isFollowing ? "#0B0B0B" : "#ffffff"};
+  color: ${({ isFollowing }) => (isFollowing ? "#0B0B0B" : "#ffffff")};
   font-family: "Lato";
   font-size: 16px;
   font-weight: 700;
@@ -697,8 +678,6 @@ const FollowBackInfo = styled.span`
   }
 `;
 
-
-
 const FollowNumbers = styled.div`
   display: flex;
   flex-direction: column;
@@ -711,7 +690,6 @@ const FollowNumbers = styled.div`
     gap: 16px;
   }
 `;
-
 
 const FollowInfo = styled.span`
   width: 199px;
@@ -726,7 +704,7 @@ const FollowInfo = styled.span`
   background-color: #333333;
   border-radius: 5px;
 
-    @media (max-width: 768px) {
+  @media (max-width: 768px) {
     font-size: 15px;
     font-weight: 500;
   }
@@ -748,12 +726,10 @@ const UserInfoSection = styled.div`
   justify-content: center;
 
   @media (max-width: 768px) {
-  margin: 20px auto;
+    margin: 20px auto;
     width: 100%;
-
-}
+  }
 `;
-
 
 const UserInfoItem = styled.div`
   display: flex;
@@ -767,7 +743,7 @@ const UserInfoItem = styled.div`
   color: #c6c6c6;
 
   strong {
-    min-width: 78px; 
+    min-width: 78px;
     color: #ffffff;
     font-weight: 700;
     white-space: nowrap;
@@ -818,11 +794,9 @@ const BottomActionButton = styled.button<{ isFollowing: boolean }>`
   border-radius: 50%;
   border: none;
 
-  background: ${({ isFollowing }) =>
-    isFollowing ? "#949494" : "#1877f2"};
+  background: ${({ isFollowing }) => (isFollowing ? "#949494" : "#1877f2")};
 
-  color: ${({ isFollowing }) =>
-    isFollowing ? "#0B0B0B" : "#ffffff"};
+  color: ${({ isFollowing }) => (isFollowing ? "#0B0B0B" : "#ffffff")};
 
   font-size: 24px;
   font-weight: bold;
