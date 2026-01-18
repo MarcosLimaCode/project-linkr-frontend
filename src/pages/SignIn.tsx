@@ -31,7 +31,6 @@ function SignIn() {
         setToken(res.data.token);
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("image", res.data.image);
-        console.log(res.data);
         setLoading(false);
         navigate("/feed");
       })
