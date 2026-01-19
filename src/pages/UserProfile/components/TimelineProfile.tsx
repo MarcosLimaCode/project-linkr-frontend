@@ -30,7 +30,7 @@ export default function TimelineProfile({
   const [feedError, setFeedError] = useState(false);
   const imageError =
     "https://lojaintegrada.com.br/hub//wp-content/uploads/2023/05/erro-404-1024x684.webp";
-  const [loginId, setLoginId] = useState(true);
+  const [loginId, setLoginId] = useState<number | null>(null);
 
   useEffect(() => {
     if (editingPost) {
@@ -319,7 +319,7 @@ const MenuLeft = styled.div`
 `;
 
 const PostBody = styled.div`
-  width: 100vw;
+  width: 100%;
   margin-top: 8px;
   margin-left: 10px;
   position: relative;

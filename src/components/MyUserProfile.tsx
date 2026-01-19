@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import api from "../services/api";
 import { getFeed } from "../services/feed-service";
 import Header from "../pages/Feed/components/Header";
+import TimelineProfile from "../pages/UserProfile/components/TimelineProfile";
 
 function MyUserProfile() {
   const [posts, setPosts] = useState<any[]>([]);
@@ -205,37 +206,11 @@ function MyUserProfile() {
               <StatusText>Nenhum post ainda.</StatusText>
             )}
 
-            {posts.map((post) => (
-              <AllPostBox key={post.id}>
-                <UserHeader>
-                  <UserBox to={`/user/${post.userId}`}>
-                    <AvatarNewPost
-                      style={{ backgroundImage: `url(${post.user.image})` }}
-                    />
-                    <UserPost>{post.user.username}</UserPost>
-                  </UserBox>
-                </UserHeader>
+            <TimelineProfile
+              userProfileId={userData.id?.toString()}
+              onPostSuccess={() => {}}
+            />
 
-                <PostContent>
-                  <PostBody>
-                    <PostDescription>{post.description}</PostDescription>
-
-                    <PostURL onClick={() => window.open(post.link, "_blank")}>
-                      <Content>
-                        <Title>{post.metadata?.title || "Título indisponível"}</Title>
-                        <Description>
-                          {post.metadata?.description || "Descrição indisponível"}
-                        </Description>
-                        <Url>{post.link}</Url>
-                      </Content>
-                      {post.metadata?.images?.[0] && (
-                        <Image src={post.metadata.images[0]} />
-                      )}
-                    </PostURL>
-                  </PostBody>
-                </PostContent>
-              </AllPostBox>
-            ))}
 
           </FeedContainer>
         </ContentWrapper>
@@ -546,16 +521,20 @@ const Textarea = styled.textarea`
   }
 `;
 
-
-
-
 const FeedContainer = styled.div`
+  width: 628px;
+  max-width: 100%;
+
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
-`;
 
+  margin: 0 auto;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+`;
 
 const FeedTitle = styled.div`
   color: #fff;
