@@ -224,14 +224,14 @@ export default function TimelineProfile({
                   <PostURL onClick={() => window.open(post.link, "_blank")}>
                     <Content>
                       <Title>
-                        {post.metadata.title || "Título indisponível"}
+                        {post.preview_title || "Título indisponível"}
                       </Title>
                       <Description>
-                        {post.metadata.description || "Descrição indisponível"}
+                        {post.preview_description || "Descrição indisponível"}
                       </Description>
                       <Url>{post.link}</Url>
                     </Content>
-                    <Image src={post.metadata.images[0] || imageError} />
+                    <Image src={post.preview_image || imageError} />
                   </PostURL>
                 </PostBody>
               </PostContent>

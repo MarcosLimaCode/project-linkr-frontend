@@ -57,6 +57,7 @@ export default function Timeline({ onPostSuccess }: NewPostProps) {
         const id = await getUserId();
         setLoginId(id);
         setPosts(data);
+        console.log(data);
       } catch (error) {
         console.log(error);
         setFeedError(true);
@@ -211,15 +212,13 @@ export default function Timeline({ onPostSuccess }: NewPostProps) {
 
                 <PostURL onClick={() => window.open(post.link, "_blank")}>
                   <Content>
-                    <Title>
-                      {post.metadata.title || "Título indisponível"}
-                    </Title>
+                    <Title>{post.preview_title || "Título indisponível"}</Title>
                     <Description>
-                      {post.metadata.description || "Descrição indisponível"}
+                      {post.preview_description || "Descrição indisponível"}
                     </Description>
                     <Url>{post.link}</Url>
                   </Content>
-                  <Image src={post.metadata.images[0] || imageError} />
+                  <Image src={post.preview_image || imageError} />
                 </PostURL>
               </PostBody>
             </PostContent>
