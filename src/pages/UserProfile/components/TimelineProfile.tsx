@@ -361,7 +361,7 @@ const PostURL = styled.div`
 
 const Image = styled.img`
   width: 153px;
-  max-height: fit-content;
+  height: fill-content;
   object-fit: cover;
   margin-left: 12px;
   border-top-right-radius: 8px;
@@ -428,7 +428,7 @@ const TooltipLike = styled.span`
 `;
 
 const LikeContainer = styled.div`
-  width: 100px;
+  width: 150px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
