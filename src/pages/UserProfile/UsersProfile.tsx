@@ -90,12 +90,12 @@ function UsersProfile() {
               <UserInfoSection>
                 <UserInfoItem>
                   <strong>Sobre mim</strong>
-                  <p>{userProfile?.about}</p>
+                  <p>{userProfile?.about ? `${userProfile.about}` : "Descrição Indisponível"}</p>
                 </UserInfoItem>
 
                 <UserInfoItem>
                   <strong>Idade</strong>
-                  <p>{userProfile?.age} anos</p>
+                    <p>{userProfile?.age ? `${userProfile.age} anos` : "Idade Indisponível"}</p>
                 </UserInfoItem>
 
                 <UserInfoItem>
