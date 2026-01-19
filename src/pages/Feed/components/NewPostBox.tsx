@@ -1,19 +1,24 @@
+import { CircularProgress } from "@mui/material";
 import axios from "axios";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
-export default function NewPostBox() {
+interface NewPostProps {
+  onPostSuccess: () => void;
+}
+
+export default function NewPostBox({ onPostSuccess }: NewPostProps) {
   const [link, setLink] = useState("");
   const [description, setDescription] = useState("");
+  const [loading, setLoading] = useState(false);
   const backendUrl = import.meta.env.VITE_API_URL;
   const image = localStorage.getItem("image");
   const isDisabled = !link;
-  const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
   async function handlePost(e: React.FormEvent) {
     e.preventDefault();
+    setLoading(true);
 
     try {
       await axios.post(
@@ -28,10 +33,14 @@ export default function NewPostBox() {
           },
         }
       );
-      navigate(0);
+      setLoading(false);
+      setLink("");
+      setDescription("");
+      onPostSuccess();
     } catch (err) {
       console.log(err);
       alert("Erro inesperado. Tente novamente mais tarde.");
+      setLoading(false);
     }
   }
 
@@ -46,23 +55,29 @@ export default function NewPostBox() {
       <PostContent onSubmit={handlePost}>
         <PromptText>O que você tem pra compartilhar hoje?</PromptText>
 
-        <Input
-          contentEditable
-          onInput={(e) => setLink(e.currentTarget.textContent || "")}
-          data-placeholder="http://..."
-          suppressContentEditableWarning
-        />
+        <InputContainer>
+          <Input
+            value={link}
+            onChange={(e) => setLink(e.target.value)}
+            placeholder="http://..."
+            suppressContentEditableWarning
+          />
 
-        <Input
-          contentEditable
-          onInput={(e) => setDescription(e.currentTarget.textContent || "")}
-          data-placeholder="Descrição"
-          suppressContentEditableWarning
-        />
+          <Input
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Descrição"
+            suppressContentEditableWarning
+          />
+        </InputContainer>
 
         <ButtonWrapper>
           <ShareButton type="submit" disabled={isDisabled}>
-            Publicar
+            {!loading ? (
+              "Publicar"
+            ) : (
+              <CircularProgress color="inherit" size="20px" />
+            )}
           </ShareButton>
         </ButtonWrapper>
       </PostContent>
@@ -94,12 +109,22 @@ const PromptText = styled.div`
   margin-bottom: 12px;
 `;
 
-const Input = styled.div`
+const InputContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+`;
+
+const Input = styled.input`
+  font-family: "Lato";
+  font-size: 16px;
   background: #efefef;
   border-radius: 5px;
   padding: 6px 10px;
   margin-bottom: 8px;
   min-height: 30px;
+  border: none;
   outline: none;
 
   &:empty:before {

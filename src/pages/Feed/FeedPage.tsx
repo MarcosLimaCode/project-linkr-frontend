@@ -3,8 +3,15 @@ import Header from "./components/Header";
 import NewPostBox from "./components/NewPostBox";
 import Timeline from "./components/Timeline";
 import Suggestions from "./components/Suggestions";
+import { useState } from "react";
 
 export default function FeedPage() {
+  const [refreshCount, setRefreshCount] = useState(0);
+
+  const handlePostSuccess = () => {
+    setRefreshCount((prev) => prev + 1);
+  };
+
   return (
     <Container>
       <Header />
@@ -13,8 +20,8 @@ export default function FeedPage() {
         <ContentWrapper>
           <FeedContainer>
             <FeedTitle>Feed</FeedTitle>
-            <NewPostBox />
-            <Timeline />
+            <NewPostBox onPostSuccess={handlePostSuccess} />
+            <Timeline onPostSuccess={handlePostSuccess} key={refreshCount} />
           </FeedContainer>
           <Suggestions />
         </ContentWrapper>

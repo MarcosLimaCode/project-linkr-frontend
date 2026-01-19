@@ -12,11 +12,15 @@ import {
 import api from "../../../services/api";
 import { Link } from "react-router-dom";
 
-interface NewPostProps {
+interface TimelineProfileProps {
+  userProfileId: string | undefined;
   onPostSuccess: () => void;
 }
 
-export default function Timeline({ onPostSuccess }: NewPostProps) {
+export default function TimelineProfile({
+  userProfileId,
+  onPostSuccess,
+}: TimelineProfileProps) {
   const [editingPost, setEditingPost] = useState<any | null>(null);
   const [deletingPost, setDeletingPost] = useState<any | null>(null);
   const [link, setLink] = useState("");
@@ -110,121 +114,129 @@ export default function Timeline({ onPostSuccess }: NewPostProps) {
         {!loadingFeed && posts.length === 0 && (
           <StatusText>Nenhuma postagem no momento...</StatusText>
         )}
-        {posts.map((post) => (
-          <AllPostBox key={post.id}>
-            <UserHeader>
-              <UserBox to={`/user/${post.userId}`}>
-                <AvatarNewPost
-                  style={{ backgroundImage: `url(${post.user.image})` }}
-                />
-                <UserPost>{post.user.username}</UserPost>
-              </UserBox>
-              <PostHeader>
-                {post.userId === loginId && (
-                  <MenuLeft>
-                    <EditButton onClick={() => setEditingPost(post)}>
-                      <IoPencil size={25} />
-                    </EditButton>
-                    {editingPost && (
-                      <EditContainer onClick={() => setEditingPost(null)}>
-                        <Box onClick={(e) => e.stopPropagation()}>
-                          <TitleEdit>Link do post:</TitleEdit>
-                          <InputLink
-                            type="text"
-                            defaultValue={editingPost.link}
-                            onChange={(e) => setLink(e.target.value)}
-                          />
-                          <DescriptionEdit>Descrição do post:</DescriptionEdit>
-                          <InputDescription
-                            defaultValue={editingPost.description}
-                            onChange={(e) => setDescription(e.target.value)}
-                          />
-                          <ButtonBox>
-                            <CloseButton onClick={() => setEditingPost(null)}>
-                              Fechar
-                            </CloseButton>
-                            <UpdateButton
-                              onClick={async () => {
-                                await updatePost(
-                                  editingPost.id,
-                                  link,
-                                  description
-                                );
-                                setEditingPost(null);
-                                onPostSuccess();
-                              }}
-                            >
-                              Atualizar
-                            </UpdateButton>
-                          </ButtonBox>
-                        </Box>
-                      </EditContainer>
-                    )}
-                    <DeleteButton onClick={() => setDeletingPost(post)}>
-                      <IoTrashBin size={25} />
-                    </DeleteButton>
-                    {deletingPost && (
-                      <DeleteContainer onClick={() => setDeletingPost(null)}>
-                        <BoxDelete onClick={(e) => e.stopPropagation()}>
-                          <TitleDelete>
-                            Você tem certeza que gostaria de remover a postagem?
-                          </TitleDelete>
-                          <ButtonBoxDelete>
-                            <CancelButton onClick={() => setDeletingPost(null)}>
-                              Cancelar
-                            </CancelButton>
-                            <ConfirmButton
-                              onClick={async () => {
-                                await deletePost(deletingPost.id);
-                                setDeletingPost(null);
-                                onPostSuccess();
-                              }}
-                            >
-                              Confirmar
-                            </ConfirmButton>
-                          </ButtonBoxDelete>
-                        </BoxDelete>
-                      </DeleteContainer>
-                    )}
-                  </MenuLeft>
-                )}
-              </PostHeader>
-            </UserHeader>
-            <PostContent>
-              <LikeContainer
-                onClick={() => {
-                  handleLike(post.id);
-                }}
-              >
-                {post.liked ? (
-                  <IoHeart size={20} color="red" />
-                ) : (
-                  <IoHeartOutline size={20} color="#FFFFFF" />
-                )}
-                <LikesCount>
-                  {post.likesCount} {post.likesCount === 1 ? "like" : "likes"}
-                  <TooltipLike>João, Maria e outras 11 pessoas</TooltipLike>
-                </LikesCount>
-              </LikeContainer>
-              <PostBody>
-                <PostDescription>{post.description}</PostDescription>
 
-                <PostURL onClick={() => window.open(post.link, "_blank")}>
-                  <Content>
-                    <Title>
-                      {post.metadata.title || "Título indisponível"}
-                    </Title>
-                    <Description>
-                      {post.metadata.description || "Descrição indisponível"}
-                    </Description>
-                    <Url>{post.link}</Url>
-                  </Content>
-                  <Image src={post.metadata.images[0] || imageError} />
-                </PostURL>
-              </PostBody>
-            </PostContent>
-          </AllPostBox>
-        ))}
+        {posts
+          .filter((post) => Number(post.userId) === Number(userProfileId))
+          .map((post) => (
+            <AllPostBox key={post.id}>
+              <UserHeader>
+                <UserBox to={`/user/${post.userId}`}>
+                  <AvatarNewPost
+                    style={{ backgroundImage: `url(${post.user.image})` }}
+                  />
+                  <UserPost>{post.user.username}</UserPost>
+                </UserBox>
+                <PostHeader>
+                  {post.userId === loginId && (
+                    <MenuLeft>
+                      <EditButton onClick={() => setEditingPost(post)}>
+                        <IoPencil size={25} />
+                      </EditButton>
+                      {editingPost && (
+                        <EditContainer onClick={() => setEditingPost(null)}>
+                          <Box onClick={(e) => e.stopPropagation()}>
+                            <TitleEdit>Link do post:</TitleEdit>
+                            <InputLink
+                              type="text"
+                              defaultValue={editingPost.link}
+                              onChange={(e) => setLink(e.target.value)}
+                            />
+                            <DescriptionEdit>
+                              Descrição do post:
+                            </DescriptionEdit>
+                            <InputDescription
+                              defaultValue={editingPost.description}
+                              onChange={(e) => setDescription(e.target.value)}
+                            />
+                            <ButtonBox>
+                              <CloseButton onClick={() => setEditingPost(null)}>
+                                Fechar
+                              </CloseButton>
+                              <UpdateButton
+                                onClick={async () => {
+                                  await updatePost(
+                                    editingPost.id,
+                                    link,
+                                    description
+                                  );
+                                  setEditingPost(null);
+                                  onPostSuccess();
+                                }}
+                              >
+                                Atualizar
+                              </UpdateButton>
+                            </ButtonBox>
+                          </Box>
+                        </EditContainer>
+                      )}
+                      <DeleteButton onClick={() => setDeletingPost(post)}>
+                        <IoTrashBin size={25} />
+                      </DeleteButton>
+                      {deletingPost && (
+                        <DeleteContainer onClick={() => setDeletingPost(null)}>
+                          <BoxDelete onClick={(e) => e.stopPropagation()}>
+                            <TitleDelete>
+                              Você tem certeza que gostaria de remover a
+                              postagem?
+                            </TitleDelete>
+                            <ButtonBoxDelete>
+                              <CancelButton
+                                onClick={() => setDeletingPost(null)}
+                              >
+                                Cancelar
+                              </CancelButton>
+                              <ConfirmButton
+                                onClick={async () => {
+                                  await deletePost(deletingPost.id);
+                                  setDeletingPost(null);
+                                  onPostSuccess();
+                                }}
+                              >
+                                Confirmar
+                              </ConfirmButton>
+                            </ButtonBoxDelete>
+                          </BoxDelete>
+                        </DeleteContainer>
+                      )}
+                    </MenuLeft>
+                  )}
+                </PostHeader>
+              </UserHeader>
+              <PostContent>
+                <LikeContainer
+                  onClick={() => {
+                    handleLike(post.id);
+                  }}
+                >
+                  {post.liked ? (
+                    <IoHeart size={20} color="red" />
+                  ) : (
+                    <IoHeartOutline size={20} color="#FFFFFF" />
+                  )}
+                  <LikesCount>
+                    {post.likesCount} {post.likesCount === 1 ? "like" : "likes"}
+                    <TooltipLike>João, Maria e outras 11 pessoas</TooltipLike>
+                  </LikesCount>
+                </LikeContainer>
+                <PostBody>
+                  <PostDescription>{post.description}</PostDescription>
+
+                  <PostURL onClick={() => window.open(post.link, "_blank")}>
+                    <Content>
+                      <Title>
+                        {post.metadata.title || "Título indisponível"}
+                      </Title>
+                      <Description>
+                        {post.metadata.description || "Descrição indisponível"}
+                      </Description>
+                      <Url>{post.link}</Url>
+                    </Content>
+                    <Image src={post.metadata.images[0] || imageError} />
+                  </PostURL>
+                </PostBody>
+              </PostContent>
+            </AllPostBox>
+          ))}
       </SkeletonTheme>
     </>
   );

@@ -36,6 +36,17 @@ export async function getUserId() {
   return result.data.id;
 }
 
+export async function getProfileId(id: number) {
+  const token = localStorage.getItem("token");
+
+  const result = await api.get(`/user/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return result.data;
+}
+
 export async function postFeed(link: string, description: string) {
   await api.post("/feed", { link, description });
 }
