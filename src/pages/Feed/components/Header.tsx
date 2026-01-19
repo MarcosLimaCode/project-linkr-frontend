@@ -45,6 +45,8 @@ export default function Header() {
   );
 }
 
+
+
 const Top = styled.div`
   position: fixed;
   top: 0;
@@ -57,6 +59,10 @@ const Top = styled.div`
   align-items: center;
   padding: 0 20px;
   z-index: 10;
+
+  @media (max-width: 768px) {
+  display: none;
+}
 `;
 const Title = styled(Link)`
   font-family: "Passion One";

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
+import { Link } from "react-router-dom";
 import api from "../services/api";
 import { getFeed } from "../services/feed-service";
 import Header from "../pages/Feed/components/Header";
@@ -11,7 +12,14 @@ function MyUserProfile() {
 
   const [isEditing, setIsEditing] = useState(false);
 
-  const [userData, setUserData] = useState({
+  const [userData, setUserData] = useState<{
+    id: number | null;
+    name: string;
+    age: string;
+    image: string;
+    about: string;
+    }>({
+    id: null,
     name: "",
     age: "",
     image: "",
@@ -29,34 +37,55 @@ function MyUserProfile() {
   const userId = Number(localStorage.getItem("userId"));
 
   async function loadProfile() {
-    try {
-      const { data } = await api.get("/user/my-profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+  try {
+    const { data } = await api.get("/user/my-profile", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-      setUserData(data);
-      setEditedData(data);
-    } catch {
-      alert("Erro ao carregar perfil");
-    }
+    const formattedUser = {
+      id: data.id,
+      name: data.username ?? "",
+      age: data.age?.toString() ?? "",
+      image: data.image ?? "",
+      about: data.about ?? "",
+    };
+
+    setUserData(formattedUser);
+    setEditedData(formattedUser);
+  } catch {
+    alert("Erro ao carregar perfil");
   }
+}
+
+
 
   async function loadMyPosts() {
-    try {
-      setLoadingFeed(true);
-      const data = await getFeed();
-      setPosts(data.filter((post: any) => post.user.id === userId));
-    } catch {
-      setFeedError(true);
-    } finally {
-      setLoadingFeed(false);
-    }
+  try {
+    setLoadingFeed(true);
+    const data = await getFeed();
+
+    setPosts(
+      data.filter(
+        (post: any) => Number(post.userId) === Number(userData.id)
+      )
+    );
+  } catch {
+    setFeedError(true);
+  } finally {
+    setLoadingFeed(false);
   }
+}
+
 
   useEffect(() => {
     loadProfile();
-    loadMyPosts();
   }, []);
+
+  useEffect(() => {
+    if (userData.id) {
+      loadMyPosts();
+    }
+  }, [userData.id]);
 
   function handleEdit() {
     setIsEditing(true);
@@ -68,17 +97,33 @@ function MyUserProfile() {
   }
 
   async function handleSave() {
-    try {
-      await api.put("/user/my-profile", editedData, {
+  try {
+    console.log("ENVIANDO:", {
+  username: editedData.name,
+  age: editedData.age,
+  image: editedData.image,
+  about: editedData.about,
+});
+    await api.put(
+      "/user/my-profile",
+      {
+        username: editedData.name,
+        age: editedData.age === "" ? null : Number(editedData.age),
+        image: editedData.image,
+        about: editedData.about,
+      },
+      {
         headers: { Authorization: `Bearer ${token}` },
-      });
+      }
+    );
 
-      setUserData(editedData);
-      setIsEditing(false);
-    } catch {
-      alert("Erro ao salvar alterações");
-    }
-  }
+    setUserData({ ...editedData, id: userData.id });
+    setIsEditing(false);
+  } catch (error: any) {
+  console.log("ERRO AO SALVAR PERFIL:", error.response?.data || error);
+}
+}
+
 
   return (
     <Container>
@@ -162,19 +207,37 @@ function MyUserProfile() {
             )}
 
             {posts.map((post) => (
-              <PostBox key={post.id}>
-                <PostAvatar
-                  style={{ backgroundImage: `url(${post.user.image})` }}
-                />
+              <AllPostBox key={post.id}>
+                <UserHeader>
+                  <UserBox to={`/user/${post.userId}`}>
+                    <AvatarNewPost
+                      style={{ backgroundImage: `url(${post.user.image})` }}
+                    />
+                    <UserPost>{post.user.username}</UserPost>
+                  </UserBox>
+                </UserHeader>
+
                 <PostContent>
-                  <PostUser>{post.user.username}</PostUser>
-                  <PostDescription>{post.description}</PostDescription>
-                  <PostURL onClick={() => window.open(post.link, "_blank")}>
-                    {post.link}
-                  </PostURL>
+                  <PostBody>
+                    <PostDescription>{post.description}</PostDescription>
+
+                    <PostURL onClick={() => window.open(post.link, "_blank")}>
+                      <Content>
+                        <Title>{post.metadata?.title || "Título indisponível"}</Title>
+                        <Description>
+                          {post.metadata?.description || "Descrição indisponível"}
+                        </Description>
+                        <Url>{post.link}</Url>
+                      </Content>
+                      {post.metadata?.images?.[0] && (
+                        <Image src={post.metadata.images[0]} />
+                      )}
+                    </PostURL>
+                  </PostBody>
                 </PostContent>
-              </PostBox>
+              </AllPostBox>
             ))}
+
           </FeedContainer>
         </ContentWrapper>
       </Body>
@@ -204,6 +267,69 @@ const Body = styled.div`
     padding-top: 0;
     padding-bottom: 120px;
   }
+`;
+
+
+const AllPostBox = styled.div`
+  width: 628px;
+  max-width: 100%;
+
+  background: #171717;
+  border-radius: 25px;
+  padding: 25px;
+  margin-bottom: 20px;
+
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    border-radius: 0;
+  }
+`;
+
+
+const UserHeader = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
+const UserBox = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  border-radius: 26.5px;
+  text-decoration: none;
+`;
+
+const AvatarNewPost = styled.div`
+  width: 50px;
+  height: 50px;
+
+  position: absolute;
+  border-radius: 26.5px;
+  background-size: cover;
+  background-position: center;
+  border: 5px solid #333333;
+`;
+
+const UserPost = styled.div`
+  padding: 0 15px;
+
+  margin-left: 55px;
+  height: 39px;
+  display: flex;
+  align-items: center;
+
+  font-family: "Lato";
+  font-size: 19px;
+  font-weight: 400;
+  color: #ffffff;
+  background: #333333;
+  border-radius: 0 15px 15px 0;
+  white-space: nowrap;
+  border-right: 8px solid #333333;
 `;
 
 const ContentWrapper = styled.div`
@@ -365,29 +491,72 @@ const Input = styled.input`
   border-radius: 5px;
   border: none;
 
+  background: #ffffff;
+  color: #000000;
+
+  font-family: "Lato", sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+  text-align: left;
+
+  line-height: 20px;
+  box-sizing: border-box;
+
+  &:disabled {
+    background: #2a2a2a;
+    color: #ffffff;
+    opacity: 1;
+    cursor: default;
+  }
+
   @media (max-width: 768px) {
     width: 100%;
   }
 `;
+
 
 const Textarea = styled.textarea`
   flex: 1;
+  width: 100%;
   height: 80px;
-  padding: 8px;
+
+  padding: 30px 8px 0 8px;
+
   border-radius: 5px;
   border: none;
   resize: none;
+  box-sizing: border-box;
+
+  background: ${({ disabled }) => (disabled ? "#1e1e1e" : "#ffffff")};
+  color: ${({ disabled }) => (disabled ? "#ffffff" : "#000000")};
+
+  font-family: "Lato", sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+  text-align: left;
+
+  line-height: 20px;
+  opacity: 1;
+
+  &:disabled {
+    cursor: default;
+  }
 
   @media (max-width: 768px) {
     width: 100%;
   }
 `;
+
+
+
 
 const FeedContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
 `;
+
 
 const FeedTitle = styled.div`
   color: #fff;
@@ -403,15 +572,22 @@ const FeedTitle = styled.div`
 
 const PostBox = styled.div`
   background: #171717;
-  border-radius: 16px;
-  padding: 18px;
-  display: flex;
+  border-radius: 25px;
+  padding: 25px;
   margin-bottom: 20px;
 
+  width: 100%;
+  max-width: 620px;
+
+  display: flex;
+  flex-direction: column;
+
   @media (max-width: 768px) {
-    width: 100%;
+    border-radius: 0;
+    max-width: 100%;
   }
 `;
+
 
 const PostAvatar = styled.div`
   width: 50px;
@@ -422,6 +598,51 @@ const PostAvatar = styled.div`
 
 const PostContent = styled.div`
   margin-left: 12px;
+`;
+
+const PostBody = styled.div`
+  width: 100%;
+  margin-top: 8px;
+  margin-left: 10px;
+  position: relative;
+`;
+
+
+const Content = styled.div`
+  max-width: 70%;
+  max-height: fit-content;
+  display: flex;
+  flex-direction: column;
+  margin: 12px;
+`;
+
+const Title = styled.div`
+  font-weight: 400;
+  font-size: 16px;
+  margin-bottom: 15px;
+  color: #cecece;
+`;
+
+const Description = styled.div`
+  font-size: 11px;
+  color: #555;
+  margin-bottom: 8px;
+`;
+
+const Url = styled.div`
+  font-size: 11px;
+  font-style: italic;
+  color: #555;
+  margin-bottom: 8px;
+`;
+
+const Image = styled.img`
+  width: 153px;
+  max-height: fit-content;
+  object-fit: cover;
+  margin-left: 12px;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
 `;
 
 const PostUser = styled.div`
