@@ -34,7 +34,6 @@ function MyUserProfile() {
   });
 
   const token = localStorage.getItem("token");
-  const userId = Number(localStorage.getItem("userId"));
 
   async function loadProfile() {
   try {
@@ -570,32 +569,6 @@ const FeedTitle = styled.div`
   }
 `;
 
-const PostBox = styled.div`
-  background: #171717;
-  border-radius: 25px;
-  padding: 25px;
-  margin-bottom: 20px;
-
-  width: 100%;
-  max-width: 620px;
-
-  display: flex;
-  flex-direction: column;
-
-  @media (max-width: 768px) {
-    border-radius: 0;
-    max-width: 100%;
-  }
-`;
-
-
-const PostAvatar = styled.div`
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-size: cover;
-`;
-
 const PostContent = styled.div`
   margin-left: 12px;
 `;
@@ -643,11 +616,6 @@ const Image = styled.img`
   margin-left: 12px;
   border-top-right-radius: 8px;
   border-bottom-right-radius: 8px;
-`;
-
-const PostUser = styled.div`
-  color: #fff;
-  font-size: 19px;
 `;
 
 const PostDescription = styled.div`
