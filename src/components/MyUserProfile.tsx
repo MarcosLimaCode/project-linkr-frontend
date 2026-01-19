@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
 import api from "../services/api";
 import { getFeed } from "../services/feed-service";
 import Header from "../pages/Feed/components/Header";
@@ -243,69 +242,6 @@ const Body = styled.div`
   }
 `;
 
-
-const AllPostBox = styled.div`
-  width: 628px;
-  max-width: 100%;
-
-  background: #171717;
-  border-radius: 25px;
-  padding: 25px;
-  margin-bottom: 20px;
-
-  display: flex;
-  flex-direction: column;
-  position: relative;
-
-  @media (max-width: 768px) {
-    width: 100%;
-    border-radius: 0;
-  }
-`;
-
-
-const UserHeader = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-`;
-
-const UserBox = styled(Link)`
-  display: inline-flex;
-  align-items: center;
-  border-radius: 26.5px;
-  text-decoration: none;
-`;
-
-const AvatarNewPost = styled.div`
-  width: 50px;
-  height: 50px;
-
-  position: absolute;
-  border-radius: 26.5px;
-  background-size: cover;
-  background-position: center;
-  border: 5px solid #333333;
-`;
-
-const UserPost = styled.div`
-  padding: 0 15px;
-
-  margin-left: 55px;
-  height: 39px;
-  display: flex;
-  align-items: center;
-
-  font-family: "Lato";
-  font-size: 19px;
-  font-weight: 400;
-  color: #ffffff;
-  background: #333333;
-  border-radius: 0 15px 15px 0;
-  white-space: nowrap;
-  border-right: 8px solid #333333;
-`;
-
 const ContentWrapper = styled.div`
   width: 100%;
   max-width: 940px;
@@ -546,67 +482,6 @@ const FeedTitle = styled.div`
     font-size: 32px;
     text-align: center;
   }
-`;
-
-const PostContent = styled.div`
-  margin-left: 12px;
-`;
-
-const PostBody = styled.div`
-  width: 100%;
-  margin-top: 8px;
-  margin-left: 10px;
-  position: relative;
-`;
-
-
-const Content = styled.div`
-  max-width: 70%;
-  max-height: fit-content;
-  display: flex;
-  flex-direction: column;
-  margin: 12px;
-`;
-
-const Title = styled.div`
-  font-weight: 400;
-  font-size: 16px;
-  margin-bottom: 15px;
-  color: #cecece;
-`;
-
-const Description = styled.div`
-  font-size: 11px;
-  color: #555;
-  margin-bottom: 8px;
-`;
-
-const Url = styled.div`
-  font-size: 11px;
-  font-style: italic;
-  color: #555;
-  margin-bottom: 8px;
-`;
-
-const Image = styled.img`
-  width: 153px;
-  max-height: fit-content;
-  object-fit: cover;
-  margin-left: 12px;
-  border-top-right-radius: 8px;
-  border-bottom-right-radius: 8px;
-`;
-
-const PostDescription = styled.div`
-  color: #b7b7b7;
-  margin: 8px 0;
-`;
-
-const PostURL = styled.div`
-  border: 1px solid #4c4c4c;
-  padding: 10px;
-  border-radius: 11px;
-  cursor: pointer;
 `;
 
 const StatusText = styled.div`
